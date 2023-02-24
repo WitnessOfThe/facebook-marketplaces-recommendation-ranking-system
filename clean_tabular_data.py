@@ -1,7 +1,7 @@
 import chardet
 import csv
 import pandas as pd
-import cchardet as chardet
+import chardet as chardet
 
 class DataTabular:
 
