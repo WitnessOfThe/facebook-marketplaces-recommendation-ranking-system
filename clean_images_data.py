@@ -8,7 +8,7 @@ import os
 
 class ImagesHandle:
 
-    def __init__(self,path_dirty,path_clean,size=512) -> None:
+    def __init__(self,path_dirty,path_clean,size=256) -> None:
         self.size       = size
         self.path_dirty = path_dirty
         self.path_clean = path_clean
@@ -58,8 +58,8 @@ class ImagesHandle:
         return frame_size
 
 if __name__ == '__main__':
-    path_dirty = 'C:/Users/dp710/Documents/GitHub/facebook-marketplaces-recommendation-ranking-system/images_fb/images/'
-    path_clean = 'C:/Users/dp710/Documents/GitHub/facebook-marketplaces-recommendation-ranking-system/images_fb/clean_images/'
+    path_dirty = 'C:/Users/Danila/Documents/GitHub/facebook-marketplaces-recommendation-ranking-system/images_fb/images/'
+    path_clean = 'C:/Users/Danila/Documents/GitHub/facebook-marketplaces-recommendation-ranking-system/images_fb/clean_images_256/'
     ih = ImagesHandle(path_dirty,path_clean)
 #    ih.get_list_of_images_names(path_dirty)
  #   df_size = ih.get_list_of_images_size(path_dirty)
