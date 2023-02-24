@@ -17,9 +17,13 @@ class CustomImageDataset(torch.utils.data.Dataset):
         self.label_file            = pd.read_csv('training_with_reserved_test.csv')              
         self.encoder, self.decoder = self.return_encoder_decoder()
         self.img_labels            = self.get_img_labels()
-        self.img_dir               =  'images_fb\\clean_images_256'        
+        self.img_dir               = 'images_fb\\clean_images_256'        
         self.x                     = self.label_file['id_x']
-        self.transform             = transforms.Compose([transforms.ToTensor()])
+        self.transform             = transforms.Compose([transforms.RandomVerticalFlip(),
+                                                         transforms.RandomRotation((-180,+180)),
+                                                         transforms.RandomHorizontalFlip(),
+                                                         transforms.ToTensor(),
+                                                         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
     def __len__(self):
         return len(self.img_labels)
@@ -45,17 +49,15 @@ class CustomImageDataset(torch.utils.data.Dataset):
         return cat0_encoder,cat0_decoder
 
 def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path,unfreeze2layers=False):
+
     def train(model):
         epochs = 100
         model.train()
         phase = 'train'
-        optimizer        =  torch.optim.SGD(model.fc.parameters(), lr=0.01, momentum=0.9)
-        exp_lr_scheduler =  torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
- #       best_model = copy.deepcopy(model.state_dict())+
-        best_acc = 0.0
+        optimizer        =  torch.optim.SGD(model.fc.parameters(), lr=0.01, momentum=0.4)
+        exp_lr_scheduler =  torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
 
         writer = SummaryWriter('logs')        
-#        weights=ResNet50_Weights.DEFAULT
         for epoch in range(epochs):
             for phase in ['train','val']:
 
@@ -91,15 +93,14 @@ def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path,unfreeze2layers=
             print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
             if phase == 'val':
                 save_model(model,os.path.join(path),f'epoch_{epoch}, Loss_{epoch_loss:.4f} Acc_ {epoch_acc:.4f}')
-     #           best_model = copy.deepcopy(model.state_dict())
-    #    model.load_state_dict(best_model)
-     #   return model
+
     if unfreeze2layers:
         for param in model.layer4.parameters():
             param.requires_grad = True
 
         for param in model.layer3.parameters():
             param.requires_grad = True
+
         name = 'deep_layers_True'+name
 
     path = os.path.join(path,name+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S')))
@@ -145,6 +146,6 @@ if __name__ == '__main__':
   #  model = torch.load('model_eval/pretrained_subset_size77852023-02-24_00_46_28/epoch_7_Loss_1.4963_Acc_0.5306.pt')
     dataloaders,dataset_sizes = get_datasets()
     path   = 'model_eval' 
-    retrain_resnet_50(model,dataloaders,dataset_sizes,'dif_learning_rate_subset_size'+str(dataset_sizes['train']),path,True)
+    retrain_resnet_50(model,dataloaders,dataset_sizes,'transf_added_dif_learning_rate_subset_size'+str(dataset_sizes['train']),path,True)
     pass
 # %%
