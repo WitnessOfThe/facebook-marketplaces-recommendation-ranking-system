@@ -14,7 +14,13 @@ class ImageToModel:
     
     def __init__(self,im,size=256) -> None:
         self.image = self.resize_image(self,size, im)
-        
+        self.transform             = transforms.Compose([transforms.RandomVerticalFlip(),
+                                                         transforms.RandomRotation((-180,+180)),
+                                                         transforms.RandomHorizontalFlip(),
+                                                         transforms.ToTensor(),
+                                                         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        self.image = self.transform(self.image)
+
     def resize_image(self,final_size, im):
         size = im.size
         ratio = float(final_size) / max(size)
@@ -24,23 +30,16 @@ class ImageToModel:
         new_im.paste(im, ((final_size-new_image_size[0])//2, (final_size-new_image_size[1])//2))
         return new_im
 
-class FeatureExtractor(nn.Module):
-  def __init__(self, model):
-    super(FeatureExtractor, self).__init__()
-		# Extract VGG-16 Feature Layers
-    self.features = list(model.features)
-    self.features = nn.Sequential(*self.features)
-		# Extract VGG-16 Average Pooling Layer
-    self.pooling = model.avgpool
-		# Convert the image into one-dimensional vector
-    self.flatten = nn.Flatten()
-		# Extract the first part of fully-connected layer from VGG16
-    self.fc = model.classifier[0]
-  
-  def forward(self, x):
-		# It will take the input 'x' until it returns the feature vector called 'out'
-    out = self.features(x)
-    out = self.pooling(out)
-    out = self.flatten(out)
-    out = self.fc(out) 
-    return out 
+def get_features(img,model):
+    # Reshape the input image to match the expected shape of the ResNet50 model
+    img = ImageToModel(img).image
+    # Disable gradient computation to reduce memory consumption
+    with torch.no_grad():
+        # Pass the image through the ResNet50 model
+        features = model(img)
+
+    # Flatten the output tensor
+    features = torch.flatten(features, start_dim=1)
+
+    # Return the extracted features
+    return features
