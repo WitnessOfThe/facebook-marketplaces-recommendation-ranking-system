@@ -8,7 +8,6 @@ from torchvision import models
 from datetime import datetime
 from PIL import Image
 from datetime import datetime
-import copy
 from torch.utils.tensorboard import SummaryWriter
 
 class CustomImageDataset(torch.utils.data.Dataset):
@@ -54,8 +53,10 @@ def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path,unfreeze2layers=
         epochs = 100
         model.train()
         phase = 'train'
-        optimizer        =  torch.optim.SGD(model.fc.parameters(), lr=0.01, momentum=0.4)
-        exp_lr_scheduler =  torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
+        optimizer =  torch.optim.SGD(model.fc.parameters(), lr=0.025, momentum=0.875, weight_decay=3.0517578125e-05, nesterov=True)
+        
+     #  scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, step_size=5, gamma=0.1)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = int(10000/25))
 
         writer = SummaryWriter('logs')        
         for epoch in range(epochs):
@@ -86,7 +87,7 @@ def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path,unfreeze2layers=
                     running_corrects += torch.sum(preds == labels.data)                    
 
             if phase == 'train':
-                exp_lr_scheduler.step()
+                scheduler.step()
 
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc  = running_corrects.double() / dataset_sizes[phase]
@@ -142,10 +143,10 @@ if __name__ == '__main__':
     torch.cuda.reset_max_memory_allocated()
     torch.cuda.reset_max_memory_cached()
     torch.cuda.empty_cache()
-    model    = models.resnet50( weights=("DEFAULT"))#weights=("DEFAULT")pretrained=True
+    model    = models.resnet50( weights='IMAGENET1K_V2')#weights=("DEFAULT")pretrained=True
   #  model = torch.load('model_eval/pretrained_subset_size77852023-02-24_00_46_28/epoch_7_Loss_1.4963_Acc_0.5306.pt')
     dataloaders,dataset_sizes = get_datasets()
     path   = 'model_eval' 
-    retrain_resnet_50(model,dataloaders,dataset_sizes,'transf_added_dif_learning_rate_subset_size'+str(dataset_sizes['train']),path,True)
+    retrain_resnet_50(model,dataloaders,dataset_sizes,'_added_weights_from_paper'+str(dataset_sizes['train']),path,True)
     pass
 # %%
