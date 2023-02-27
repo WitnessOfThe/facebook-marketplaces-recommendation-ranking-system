@@ -5,8 +5,7 @@ services:
       ports: 
         - 8080:8080
       restart: always
-      environment:
-        - BUCKET_NAME=${BUCKET_NAME}
       network_mode: host
       volumes: 
-        - ~/app:/app
+       - ./:/app
+#        - ~/app:/app

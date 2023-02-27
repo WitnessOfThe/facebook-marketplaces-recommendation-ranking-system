@@ -10,7 +10,6 @@ import torch
 import torchvision.transforms as transforms
 from torch import optim, nn
 from torchvision import models
-from pytorch_handle import CustomImageDataset
 
 def get_list_of_images_names(path):
     names = os.listdir(path)
@@ -21,11 +20,10 @@ def get_list_of_images_names(path):
     return names
 
 def call_model(path,name):
-    device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")#
     model    = models.resnet50(  weights='IMAGENET1K_V2')
     model.fc = torch.nn.Linear(model.fc.in_features, 13)
     model.load_state_dict(torch.load( os.path.join(path,name)))
-
+    model.eval()
     return model
 
 class ImagePrep:

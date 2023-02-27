@@ -1,6 +1,7 @@
 import uvicorn
 import faiss
 import pickle
+import shutil
 import os
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -14,6 +15,7 @@ import torch.nn as nn
 from  torchvision import models
 from pydantic import BaseModel
 from image_processor import ImagePrep
+import numpy as np
 
 class FeatureExtractor(nn.Module):
     def __init__(self,
@@ -27,9 +29,8 @@ class FeatureExtractor(nn.Module):
         self.decoder = decoder
 
     def forward(self, image):
-        x = self.main(image)
+        x = self.model(image)
         return x
-
     def predict(self, image):
         with torch.no_grad():
             x = self.forward(image)
@@ -44,6 +45,7 @@ class TextItem(BaseModel):
 try:
     feature_extr = FeatureExtractor()
     feature_extr.model.load_state_dict(torch.load(os.path.join('model_final','model_final.pt')))
+    feature_extr.model.eval()
     with open('model_final\\decoder.pkl', 'rb') as f:
         decoder =  pickle.load(f)
     with open('model_final\\encoder.pkl', 'rb') as f:
@@ -64,30 +66,38 @@ print("Starting server")
 @app.get('/healthcheck')
 def healthcheck():
   msg = "API is up and running!"
-  
   return {"message": msg}
 
   
 @app.post('/predict/feature_embedding')
-def predict_image(image: UploadFile = File(...)):
-    pil_image = Image.open(image.file)
-    tens_image = ImagePrep(pil_image).img
+async def predict_image(file: UploadFile = File(...)):
+    contents = file.file.read()
+    with open(file.filename, 'wb') as f:
+        f.write(contents) 
+    with open(file.filename, 'rb') as f:
+        pil_image = Image.open(file.filename)
+
+    ip  = ImagePrep(pil_image)
+    tens_image = ip.img
     img_emb = feature_extr(tens_image)
     return JSONResponse(content={
-    "features": img_emb.tolist()[0], # Return the image embeddings here   
-        })
+                                "features": img_emb.tolist()[0], # Return the image embeddings here   
+                                    })
   
 @app.post('/predict/similar_images')
-def predict_combined(image: UploadFile = File(...), text: str = Form(...)):
-    print(text)
-    
-    pil_image = Image.open(image.file)
+async def predict_combined(file: UploadFile = File(...)):
+    contents = file.file.read()
+    with open(file.filename, 'wb') as f:
+        f.write(contents) 
+    with open(file.filename, 'rb') as f:
+        pil_image = Image.open(file.filename)
+
     tens_image = ImagePrep(pil_image).img
     img_emb = feature_extr(tens_image)
-    _, I = index.search(img_emb, 5)     # actual search
+    _, I = index.search(img_emb.detach().numpy(), 5)     # actual search
 
     return JSONResponse(content={
-    "similar_index": I, # Return the index of similar images here
+    "similar_index": I.tolist()[0], # Return the index of similar images here
         })
     
 if __name__ == '__main__':
