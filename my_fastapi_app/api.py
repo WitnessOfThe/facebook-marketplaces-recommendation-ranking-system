@@ -76,9 +76,10 @@ async def predict_image(file: UploadFile = File(...)):
     with open(file.filename, 'rb') as f:
         pil_image = Image.open(file.filename)
 
-    ip  = ImagePrep(pil_image)
+    ip         = ImagePrep(pil_image)
     tens_image = ip.img
-    img_emb = feature_extr(tens_image)
+    img_emb    = feature_extr(tens_image)
+    os.remove(file.filename)
     return JSONResponse(content={
                                 "features": img_emb.tolist()[0], # Return the image embeddings here   
                                     })
@@ -94,6 +95,7 @@ async def predict_combined(file: UploadFile = File(...)):
     tens_image = ImagePrep(pil_image).img
     img_emb = feature_extr(tens_image)
     _, I = index.search(img_emb.detach().numpy(), 5)     # actual search
+    os.remove(file.filename)
 
     return JSONResponse(content={
     "similar_index": I.tolist()[0], # Return the index of similar images here
