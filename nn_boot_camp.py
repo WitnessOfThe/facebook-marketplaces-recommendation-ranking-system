@@ -46,61 +46,10 @@ class CustomImageDataset(torch.utils.data.Dataset):
             cat0_encoder[cat0_keys[_]] = _
             cat0_decoder[_] = cat0_keys[_]
         return cat0_encoder,cat0_decoder
-
+ 
 def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path):
-
-    def train(model):
-        epochs = 250
-        optimizer =  torch.optim.SGD(model.parameters(), lr=0.025, momentum=0.875, weight_decay=3.0517578125e-05, nesterov=True)
- #       optimizer = torch.optim.Adam(model.parameters())       
-     #  scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, step_size=5, gamma=0.1)
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = int(10000/25))
-
-        writer = SummaryWriter('logs')        
-        best_accur = 0
-        
-        for epoch in range(epochs):
-            for phase in ['train','val']:
-
-                running_loss = 0.0
-                running_corrects = 0
-                
-                if phase == 'train':
-                    model.train()  # Set model to training mode
-                else:
-                    model.eval()   # Set model to evaluate mode
-
-                for i,(features,labels) in enumerate(dataloaders[phase]):
-                    features = features.to(device)
-                    labels   = labels.to(device)
-                    optimizer.zero_grad()
-                    with torch.set_grad_enabled(phase == 'train'):
-                        outputs  = model(features)
-                        _, preds = torch.max(outputs, 1)
-                        loss = criterion(outputs, labels)
-                    writer.add_scalar('Loss/train', loss, i)
-                    print(i)
-                    if phase == 'train':
-                        loss.backward()
-                        optimizer.step()                                           
-                    running_loss     += loss.item() * features.size(0)
-                    running_corrects += torch.sum(preds == labels.data)                    
-
-            if phase == 'train':
-                scheduler.step()
-
-            epoch_loss = running_loss / dataset_sizes[phase]
-            epoch_acc  = running_corrects.double() / dataset_sizes[phase]
-
-            print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
-
-            if phase == 'val':
-                writer.add_scalar('Loss  vs epoch', epoch_loss, epoch)
-                writer.add_scalar('Accur  vs epoch', epoch_acc, epoch)
-                if epoch_acc >= best_accur:
-                    best_accur = epoch_acc
-                    save_model(model,os.path.join(path),f'epoch_{epoch},Loss_{epoch_loss:.4f} Acc_{epoch_acc:.4f}')
-
+    model.fc = torch.nn.Linear(model.fc.in_features, 13)
+    # Unfreeze last 2 layers
     ct = 0 
     for child in model.children():
         ct += 1 
@@ -108,21 +57,66 @@ def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path):
             for param in child.parameters(): 
                 param.requires_grad = True
 
+
     path = os.path.join(path,name+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S')))
-    device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device to work with
+    writer = SummaryWriter('logs')        
 
     model    = model.to(device)
-    criterion= torch.nn.CrossEntropyLoss()    
-    model    = train(model)
+    # set up optimiser and scheduler with respect to resnet recomentations (can be found in Git)
+    # or simply use Adam :)
+#   optimizer = torch.optim.SGD(model.parameters(), lr=0.025, momentum=0.875, weight_decay=3.0517578125e-05, nesterov=True)
+#   scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = int(10000/25))
+    epochs     = 20
+    optimizer  = torch.optim.Adam(model.parameters())       
+    criterion  = torch.nn.CrossEntropyLoss()    
+    best_accur = 0
+    
+    for epoch in range(epochs):
+        for phase in ['train','val']:
+            running_loss     = 0.0
+            running_corrects = 0
+            if phase == 'train':
+                model.train()  # Set model to training mode
+            else:
+                model.eval()   # Set model to evaluate mode
+            for i,(features,labels) in enumerate(dataloaders[phase]):
+                features = features.to(device)
+                labels   = labels.to(device)
+                optimizer.zero_grad()
+                with torch.set_grad_enabled(phase == 'train'):
+                    outputs  = model(features)
+                    _, preds = torch.max(outputs, 1)
+                    loss     = criterion(outputs, labels)
+                writer.add_scalar('Loss/train', loss, i) # logging
+                print(i)
+                if phase == 'train':
+                    loss.backward()
+                    optimizer.step()                                           
+                running_loss     += loss.item() * features.size(0)
+                running_corrects += torch.sum(preds == labels.data)                    
+        if phase == 'train':
+#                scheduler.step()
+            pass
+        epoch_loss = running_loss / dataset_sizes[phase]
+        epoch_acc  = running_corrects.double() / dataset_sizes[phase]
+
+        print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+
+        if phase == 'val':
+            writer.add_scalar('Loss  vs epoch', epoch_loss, epoch) # logging
+            writer.add_scalar('Accur  vs epoch', epoch_acc, epoch) # logging
+            if epoch_acc >= best_accur:
+                best_accur = epoch_acc
+                save_model(model,os.path.join(path),f'epoch_{epoch},Loss_{epoch_loss:.4f} Acc_{epoch_acc:.4f}')    
 
 def save_model(model,path,name):   
     if not os.path.exists(path):
         os.makedirs(path)
     torch.save(model.state_dict(),os.path.join(path,name+'.pt'))
 
-
-def get_datasets():
-    full_data= CustomImageDataset('training_data.csv')
+def get_datasets(data_set_path_name):
+    full_data= CustomImageDataset(data_set_path_name)
     size    = len(full_data)
 #    subset_sampler = torch.utils.data.SubsetRandomSampler(torch.randperm(size)[:500]) # Get split into test and training
  #   size =len(subset_sampler)
@@ -133,58 +127,62 @@ def get_datasets():
     datasets    = {'train':train_dataset,
                     'val':val_dataset}
     
-    dataloaders = {x: torch.utils.data.DataLoader(datasets[x], batch_size=25, num_workers=4, shuffle=True)
+    dataloaders = {x: torch.utils.data.DataLoader(datasets[x], batch_size=10, num_workers=4, shuffle=True)
                     for x in ['train', 'val']}
                     
     dataset_sizes = {x: len(datasets[x]) for x in ['train', 'val']}
     return dataloaders, dataset_sizes
 
 def validate_test(model):
-
-
-    full_data= CustomImageDataset('test.csv')
-    dataloaders = torch.utils.data.DataLoader(full_data, batch_size=25, num_workers=4, shuffle=True)
+    full_data   = CustomImageDataset('training_data_sandbox\\test.csv')
+    dataloaders = torch.utils.data.DataLoader(full_data, batch_size=10, num_workers=4, shuffle=True)
+    data_len    = len(full_data)
 
     running_loss = 0.0
-
     running_corrects = 0
 
     device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model    = model.to(device)
-    
+    model.eval()   
+
     criterion = torch.nn.CrossEntropyLoss()    
-    model.eval()   # Set model to evaluate mode
     
     for i,(features,labels) in enumerate(dataloaders):
         features = features.to(device)
         labels   = labels.to(device)
-        with torch.no_grad():
-            outputs  = model(features)
-            _, preds = torch.max(outputs, 1)
-            loss = criterion(outputs, labels)
-        print(i)
+        outputs  = model(features)
+        _, preds = torch.max(outputs, 1)
+        loss = criterion(outputs, labels)
         running_loss     += loss.item() * features.size(0)
         running_corrects += torch.sum(preds == labels.data)                    
+        print( torch.sum(preds == labels.data) )
 
-
-    epoch_loss = running_loss / len(full_data)
-    epoch_acc  = running_corrects.double() /len(full_data)
-
+    print(data_len)
+    epoch_loss = running_loss /  data_len
+    epoch_acc  = running_corrects.double() / data_len
     print(f'Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
-
-
 if __name__ == '__main__':
+
     torch.cuda.reset_max_memory_allocated()
     torch.cuda.reset_max_memory_cached()
     torch.cuda.empty_cache()
- #   model    = models.resnet50( weights='IMAGENET1K_V2')#weights=("DEFAULT")pretrained=True
-    model    = models.resnet50(  weights='IMAGENET1K_V2')
-    model.fc = torch.nn.Linear(model.fc.in_features, 13)
-    model.load_state_dict(torch.load('model_eval/deep_layers_True_start_epoch_11370002023-02-26_12_40_45/epoch_0,Loss_0.6061 Acc_0.8357.pt'))
-    dataloaders,dataset_sizes = get_datasets()
-    path   = 'model_eval' 
-#    retrain_resnet_50(model,dataloaders,dataset_sizes,'_full_tr'+str(dataset_sizes['train']),path)
+
+    """Validation of the trained Model"""
+
+#    model    = models.resnet50(  pretrained=True)#
+#    model.fc = torch.nn.Linear(model.fc.in_features, 13)
+#    model.load_state_dict(torch.load(os.path.join('model_eval','_full_tr70002023-02-28_00_27_18','epoch_0,Loss_2.4794 Acc_0.1360.pt')))
 #    validate_test(model)
-    pass
+
+    '''Validation of the Resnet'''
+ #   model    = models.resnet50(  pretrained=True)
+ #   model.fc = torch.nn.Linear(model.fc.in_features, 13)
+ #   validate_test(model)
+
+    '''Training of the model'''
+    model    = models.resnet50(  weights='IMAGENET1K_V2')
+    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv')
+    path   = 'model_eval' 
+    retrain_resnet_50(model,dataloaders,dataset_sizes,'_full_tr'+str(dataset_sizes['train']),path)
 # %%

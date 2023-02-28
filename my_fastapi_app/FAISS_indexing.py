@@ -1,7 +1,6 @@
 # %%
 import faiss                   # make faiss available
 import json
-import pickle
 import numpy as np
 def get_dic_to_numpy_array():
     with open('image_embeddings.json') as json_file:

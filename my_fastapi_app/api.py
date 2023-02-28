@@ -19,14 +19,9 @@ class FeatureExtractor(nn.Module):
     def __init__(self,
                  decoder: dict = None):
         super(FeatureExtractor, self).__init__()
-        stat_dic = torch.load(os.path.join('model_final','model_final_CPU.pt'), map_location=torch.device('cpu') )
-
-        self.model    = models.resnet50(weights='IMAGENET1K_V2', map_location=torch.device('cpu'))
-        self.model.to('cpu')
-        self.model.load_state_dict(stat_dic)
+        self.model    = models.resnet50(  weights='IMAGENET1K_V2')
         self.model.fc = torch.nn.Linear(self.model.fc.in_features, 13)
         self.model.eval()
-
         
         self.decoder = decoder
         self.decoder = decoder
@@ -43,11 +38,16 @@ class FeatureExtractor(nn.Module):
 class TextItem(BaseModel):
     text: str
 
+
+
 try:
     feature_extr = FeatureExtractor()
-    with open('model_final\\decoder.pkl', 'rb') as f:
-        decoder =  pickle.load(f)
-    with open('model_final\\encoder.pkl', 'rb') as f:
+    feature_extr.model.load_state_dict(torch.load(os.path.join('model_final','model_final.pt' ),map_location=torch.device('cpu')))
+    feature_extr.model.eval()
+
+    with open(os.path.join('model_final','decoder.pkl'), 'rb') as f:
+        decoder =  pickle.load(f)        
+    with open(os.path.join('model_final','encoder.pkl'), 'rb') as f:
         incoder =  pickle.load(f)
 except:
     raise OSError("No Feature Extraction model found. Check that you have the decoder and the model in the correct location")
@@ -57,7 +57,7 @@ try:
     pass
 except:
     raise OSError("No Image model found. Check that you have the encoder and the model in the correct location")
- 
+
 
 app = FastAPI()
 print("Starting server")
