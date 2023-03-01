@@ -30,7 +30,8 @@ class ImagePrep:
 
     def __init__(self,img):
         self.transform = transforms.Compose([transforms.ToTensor(),
-                                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+                                             transforms.Resize(224),
+                                             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
         self.img = self.transform(self.resize_image(256,img)).unsqueeze(0)
         
 

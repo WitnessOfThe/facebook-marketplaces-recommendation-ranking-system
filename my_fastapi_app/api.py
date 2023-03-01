@@ -1,6 +1,7 @@
 import uvicorn
 import faiss
 import pickle
+import json
 import os
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -57,6 +58,11 @@ try:
     pass
 except:
     raise OSError("No Image model found. Check that you have the encoder and the model in the correct location")
+try:
+    with open('image_embeddings.json') as json_file:
+        image_embedings = json.load(json_file)
+except:
+    raise OSError("No Image dictionart found. Check that you have the image dictionary in the correct location")
 
 
 app = FastAPI()
@@ -71,6 +77,7 @@ def healthcheck():
 @app.post('/predict/feature_embedding')
 async def predict_image(file: UploadFile = File(...)):
     contents = file.file.read()
+
     with open(file.filename, 'wb') as f:
         f.write(contents) 
     with open(file.filename, 'rb') as f:
@@ -80,6 +87,7 @@ async def predict_image(file: UploadFile = File(...)):
     tens_image = ip.img
     img_emb    = feature_extr(tens_image)
     os.remove(file.filename)
+
     return JSONResponse(content={
                                 "features": img_emb.tolist()[0], # Return the image embeddings here   
                                     })
@@ -97,9 +105,34 @@ async def predict_combined(file: UploadFile = File(...)):
     _, I = index.search(img_emb.detach().numpy(), 5)     # actual search
     os.remove(file.filename)
 
+    key = list(image_embedings.keys())
+    img_labels = []
+    for _ in I.tolist()[0]:
+        img_labels.append(key[_])
+
     return JSONResponse(content={
-    "similar_index": I.tolist()[0], # Return the index of similar images here
-        })
+                                "similar_index": I.tolist()[0], # Return the index of similar images here
+                                "image_labels":img_labels
+                                })
+
+@app.post('/predict/category')
+async def predict_combined(file: UploadFile = File(...)):
+    contents = file.file.read()
+    with open(file.filename, 'wb') as f:
+        f.write(contents) 
+    with open(file.filename, 'rb') as f:
+        pil_image = Image.open(file.filename)
+
+    tens_image = ImagePrep(pil_image).img
+    img_emb = feature_extr(tens_image)
+    _, preds = torch.max(img_emb, 1)
+#    img_category = 
+    os.remove(file.filename)
+    
+    return JSONResponse(content={
+                                "category_index": preds.tolist()[0], # Return the index of similar images here
+                                "category":decoder[preds.tolist()[0]]
+                                })
     
 if __name__ == '__main__':
   uvicorn.run("api:app", host="0.0.0.0", port=8080)
