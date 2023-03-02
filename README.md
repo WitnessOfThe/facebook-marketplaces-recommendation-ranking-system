@@ -21,7 +21,7 @@ In this project, we use the neural network resnet50, which is available as one o
 
 The model training require a measure of the model performance, here we use so called cross entropy losses criterion, which is standart for image classification procedures. Then to provide feedback into the model we use the stochastic gradient descent (SGD) method, which returns updated weights to the model more likely to provide convergence to local minima. One of the key parameters of SGD is the learning rate (lr). In the scope of this progect, we compared two different schedulers to control learning rate. First is the step like changing of the learning rate. We start from the lr = 0.01 and decrease it in 10 times every 40 epochs down to lr = 1E-6 . While the second is the cosine annealing method, which is changing the lr following cosine function from lr_max = 0.01 to  lr_max = 1E-6 with full period of 40 epochs. The corresponding learning rate curves are specified below
 
-![plot](/readme_images/lr_curve.png)
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/lr_curve.PNG)
 
 
 The training of the model is initiated by "nn_boot_camp.py" script. Here we initiate two different model retraining procedures that differ in scheduler type
