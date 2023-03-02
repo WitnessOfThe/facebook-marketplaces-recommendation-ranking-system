@@ -12,19 +12,23 @@ from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
 class CustomImageDataset(torch.utils.data.Dataset):
-    def __init__(self,name):
+    def __init__(self,name,phase = 'train'):
         super().__init__() 
         self.label_file            = pd.read_csv(name)              
         self.encoder, self.decoder = self.return_encoder_decoder()
         self.img_labels            = self.get_img_labels()
         self.img_dir               = 'images_fb\\clean_images_224'        
         self.x                     = self.label_file['id_x']
-        self.transform             = transforms.Compose([transforms.RandomVerticalFlip(),
+        self.transform_train       = transforms.Compose([transforms.RandomVerticalFlip(),
                                                          transforms.RandomRotation((-180,+180)),
                                                          transforms.RandomHorizontalFlip(),
                                                          transforms.ToTensor(),
                                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-
+        
+        self.transform_eval       = transforms.Compose([ transforms.ToTensor(),
+                                                         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        
+        self.phase = phase
     def __len__(self):
         return len(self.img_labels)
 
@@ -37,7 +41,10 @@ class CustomImageDataset(torch.utils.data.Dataset):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx,0])
         image = Image.open(img_path)
         label = self.img_labels.iloc[idx,1]
-        return self.transform(image), label
+        if self.phase == 'train':
+            return self.transform_train(image), label
+        else:
+            return self.transform_eval(image), label
 
     def return_encoder_decoder(self):
         with open(os.path.join('model_final','decoder.pkl'), 'rb') as f:
@@ -45,46 +52,16 @@ class CustomImageDataset(torch.utils.data.Dataset):
         with open(os.path.join('model_final','encoder.pkl'), 'rb') as f:
             encoder =  pickle.load(f)
         return encoder, decoder
-#        cat0_keys = self.label_file['cat:0'].unique()
- #       cat0_encoder = {}
-  #      cat0_decoder = {}
-   #     for _ in range(len(cat0_keys)):
-    #        cat0_encoder[cat0_keys[_]] = _
-     #       cat0_decoder[_] = cat0_keys[_]
- #       return cat0_encoder,cat0_decoder
- 
-def retrain_resnet_50Cos(model,dataloaders,dataset_sizes,name,path):
-    model.fc = torch.nn.Linear(model.fc.in_features, 13)
-    # Unfreeze last 2 layers
-    ct = 1 
-    for child in model.children():
-        ct += 1 
-        if ct >= 9: 
-            for param in child.parameters(): 
-                param.requires_grad = True
-        else:
-            for param in child.parameters(): 
-                param.requires_grad = False
 
-    path  = os.path.join(path,name+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S')))
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device to work with
-    writer = SummaryWriter()        
+def epoch_loop(model,optimizer,device,writer,epochs,scheduler):
 
-    model    = model.to(device)
-    # set up optimiser and scheduler with respect to resnet recomentations (can be found in Git)
-    # or simply use Adam :)
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.003, momentum=0.875, weight_decay=3.0517578125e-05)
-#    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 20,eta_min = 1E-6, last_epoch = -1)
-    epochs     = 20*4
-#    optimizer  = torch.optim.Adam(model.parameters())       
     criterion  = torch.nn.CrossEntropyLoss()    
     best_accur = 0
     
     for epoch in range(epochs):
         for phase in ['train','val']:
             
-            model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,optimizer,writer)
+            model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,optimizer)
 
             if phase == 'train':
                 writer.add_scalar('LR vs epoch', scheduler.get_last_lr()[0], epoch)
@@ -106,18 +83,9 @@ def retrain_resnet_50Cos(model,dataloaders,dataset_sizes,name,path):
                 writer.add_scalar('train: Loss  vs epoch', epoch_loss, epoch) # logging
                 writer.add_scalar('train: Accur  vs epoch', epoch_acc, epoch) # logging
 
-    phase = 'test'
-    model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,optimizer,writer)
-
-    epoch_loss = running_loss / dataset_sizes[phase]
-    epoch_acc  = running_corrects.double() / dataset_sizes[phase]
-
-    writer.add_scalar('test_loss', epoch_loss, epoch) # logging
-    writer.add_scalar('test_acur', epoch_acc, epoch) # logging
-
-    print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
-
-def retrain_resnet_50Step(model,dataloaders,dataset_sizes,name,path):
+    return model,optimizer,device,criterion
+    
+def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path,epochs,sch_name):
     model.fc = torch.nn.Linear(model.fc.in_features, 13)
     # Unfreeze last 2 layers
     ct = 1 
@@ -130,58 +98,32 @@ def retrain_resnet_50Step(model,dataloaders,dataset_sizes,name,path):
             for param in child.parameters(): 
                 param.requires_grad = False
 
-    path  = os.path.join(path,name+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S')))
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device to work with
-    writer = SummaryWriter()        
-
-    model    = model.to(device)
-    # set up optimiser and scheduler with respect to resnet recomentations (can be found in Git)
-    # or simply use Adam :)
+    path      = os.path.join(path,name+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S')))
+    device    = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # device to work with
+    writer    = SummaryWriter()        
     optimizer = torch.optim.SGD(model.parameters(), lr = 0.01, momentum = 0.875, weight_decay = 3.0517578125e-05)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = 40, gamma = 0.1)
-#    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 40,eta_min= 1E-6, last_epoch=-1)
-    epochs     = 40*5
-#    optimizer  = torch.optim.Adam(model.parameters())       
-    criterion  = torch.nn.CrossEntropyLoss()    
-    best_accur = 0
-    
-    for epoch in range(epochs):
-        for phase in ['train','val']:
-            
-            model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,optimizer,writer)
+    model     = model.to(device)
 
-            if phase == 'train':
-                writer.add_scalar('LR vs epoch', scheduler.get_last_lr()[0], epoch)
-                scheduler.step()
-                pass
+    if 'cos' in sch_name:
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 20, eta_min = 1E-6, last_epoch = -1)  
+        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler)
 
-            epoch_loss = running_loss / dataset_sizes[phase]
-            epoch_acc  = running_corrects.double() / dataset_sizes[phase]
-
-            print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
-
-            if phase == 'val':
-                writer.add_scalar('Eval: Loss  vs epoch', epoch_loss, epoch) # logging
-                writer.add_scalar('Eval: Accur  vs epoch', epoch_acc, epoch) # logging
-                if epoch_acc >= best_accur:
-                    best_accur = epoch_acc
-                    save_model(model,os.path.join(path),f'epoch_{epoch},Loss_{epoch_loss:.4f} Acc_{epoch_acc:.4f}')
-            else:
-                writer.add_scalar('train: Loss  vs epoch', epoch_loss, epoch) # logging
-                writer.add_scalar('train: Accur  vs epoch', epoch_acc, epoch) # logging
+    elif 'step' in sch_name:
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = 40, gamma = 0.1)
+        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler)
 
     phase = 'test'
-    model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,optimizer,writer)
+    model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,optimizer)
 
     epoch_loss = running_loss / dataset_sizes[phase]
     epoch_acc  = running_corrects.double() / dataset_sizes[phase]
 
-    writer.add_scalar('test_loss', epoch_loss, epoch) # logging
-    writer.add_scalar('test_acur', epoch_acc, epoch) # logging
+    writer.add_scalar('test_loss', epoch_loss, 0) # logging
+    writer.add_scalar('test_acur', epoch_acc, 0) # logging
 
     print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
-def train_eval_loop(model,phase,dataloaders,device,criterion,optimizer,writer):
+def train_eval_loop(model,phase,dataloaders,device,criterion,optimizer):
     running_loss     = 0.0
     running_corrects = 0
     if phase == 'train':
@@ -211,6 +153,7 @@ def save_model(model,path,name):
     torch.save(model.state_dict(),os.path.join(path,name+'.pt'))
 
 def get_datasets(data_set_path_name,data_test_set_path_name):
+
     full_data   = CustomImageDataset(data_set_path_name)
     test_dataset= CustomImageDataset(data_test_set_path_name)
 
@@ -228,13 +171,15 @@ def get_datasets(data_set_path_name,data_test_set_path_name):
  #   train_size     = int(0.7*size)
   #  eval_size      = size -train_size
    # train_dataset, val_dataset = torch.utils.data.random_split(full_data, [train_size,eval_size])
-    
+
+    train_dataset.phase = 'train'       
+    val_dataset.phase   = 'val'
+    test_dataset.phase  = 'test'
 
     datasets    = {'train':train_dataset,
                     'val':val_dataset,
                     'test':test_dataset}
-    
-    dataloaders = {x: torch.utils.data.DataLoader(datasets[x], batch_size=15, num_workers=1,shuffle=True)
+    dataloaders = {x: torch.utils.data.DataLoader(datasets[x], batch_size=200, num_workers=2,shuffle=True)
                     for x in ['train', 'val','test']}
                     
     dataset_sizes = {x: len(datasets[x]) for x in ['train', 'val','test']}
@@ -242,7 +187,7 @@ def get_datasets(data_set_path_name,data_test_set_path_name):
 
 def validate_test(model):
 
-    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_rm_dup.csv','training_data_sandbox\\test_data_rm_dup.csv')
+    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
 
     device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model    = model.to(device)
@@ -250,9 +195,9 @@ def validate_test(model):
     criterion = torch.nn.CrossEntropyLoss()    
 
     phase = 'test'
-    model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,[],[])
+    model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,[])
 
-    epoch_loss = running_loss / dataset_sizes[phase]
+    epoch_loss = running_loss / dataset_sizes[phase]    
     epoch_acc  = running_corrects.double() / dataset_sizes[phase]
 
     print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')    
@@ -265,19 +210,19 @@ if __name__ == '__main__':
 
     """Validation of the trained Model"""
 
-    model    = models.resnet50(  weights='IMAGENET1K_V2')#
-    model.fc = torch.nn.Linear(model.fc.in_features, 13)
-    model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh_batch_5038492023-03-02_03_01_15','epoch_69,Loss_2.5770 Acc_0.5694.pt')))
-    validate_test(model)
+#    model    = models.resnet50(  weights='IMAGENET1K_V2')#
+ #   model.fc = torch.nn.Linear(model.fc.in_features, 13)
+  #  model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh_batch_5038492023-03-02_03_01_15','epoch_69,Loss_2.5770 Acc_0.5694.pt')))
+   # validate_test(model)
 
-    model    = models.resnet50(  weights='IMAGENET1K_V2')#
-    model.fc = torch.nn.Linear(model.fc.in_features, 13)
-    model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh_batch_5038492023-03-02_12_00_38','epoch_55,Loss_2.4264 Acc_0.5548.pt')))
-    validate_test(model)
+#    model    = models.resnet50(  weights='IMAGENET1K_V2')#
+ #   model.fc = torch.nn.Linear(model.fc.in_features, 13)
+  #  model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh_batch_5038492023-03-02_12_00_38','epoch_55,Loss_2.4264 Acc_0.5548.pt')))
+   # validate_test(model)
 
-    model    = models.resnet50(  weights='IMAGENET1K_V2')#
+    model    = models.resnet50(weights='IMAGENET1K_V2')#
     model.fc = torch.nn.Linear(model.fc.in_features, 13)
-    model.load_state_dict(torch.load(os.path.join('model_eval','StepFullFarsh_batch_5038492023-03-02_06_28_16','epoch_100,Loss_2.6966 Acc_0.5560.pt')))
+    model.load_state_dict(torch.load(os.path.join('model_eval','epoch_47,Loss_1.6223 Acc_0.5887.pt')))
     validate_test(model)
 
     '''Validation of the Resnet'''
@@ -285,11 +230,13 @@ if __name__ == '__main__':
  #   model.fc = torch.nn.Linear(model.fc.in_features, 13)
   #  validate_test(model)
 
-#    '''Training of the model'''
- #   model    = models.resnet50(  weights='IMAGENET1K_V2')
-  #  dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_rm_dup.csv','training_data_sandbox\\test_data_rm_dup.csv')
-   # path   = 'model_eval' 
-    #retrain_resnet_50Cos(model,dataloaders,dataset_sizes,'CosFullFarsh_batch_50'+str(dataset_sizes['train']),path)
+    '''Training of the model'''
+
+    model    = models.resnet50(weights='IMAGENET1K_V2')
+    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
+    path   = os.path.join('model_eval','batch_200') 
+    retrain_resnet_50(model,dataloaders,dataset_sizes,'Steper_batch_200',path,150,'step')
+    retrain_resnet_50(model,dataloaders,dataset_sizes,'Cos_batch_200',path,150,'cos')
 
 #    model    = models.resnet50(  weights='IMAGENET1K_V2')
  #   dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_rm_dup.csv','training_data_sandbox\\test_data_rm_dup.csv')

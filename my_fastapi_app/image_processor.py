@@ -12,12 +12,8 @@ from torch import optim, nn
 from torchvision import models
 
 def get_list_of_images_names(path):
-    names = os.listdir(path)
-#        print(self.names)
-    for _ in names:
-        if not('.jpg' in _):
-            names.remove(_)
-    return names
+    df =  pd.read_csv(path)
+    return df['id_x'].to_list()
 
 def call_model(path,name):
     model    = models.resnet50(  weights='IMAGENET1K_V2')
@@ -50,15 +46,15 @@ class ImagePrep:
 
 if __name__ == '__main__':
     
-    model   = call_model('model_final','model_final.pt')
+    model   = call_model('my_fastapi_app\\model_final','model_final.pt')
 
-    path    = 'images_fb\\clean_images_256'
-    im_list = get_list_of_images_names( 'images_fb\\clean_images_256')
+    path    = 'images_fb\\clean_images_224'
+    im_list = get_list_of_images_names( 'training_data_sandbox\\test.csv')
     im_emb_dict = {}
     
     for i,_ in enumerate(im_list):#range(len(im_list)):#
         im_path = os.path.join(path,_)
-        im = Image.open(im_path)
+        im = Image.open(im_path+'.jpg')
         im = ImagePrep(im).img
         emb       = model(im)        
         im_emb_dict[_.replace('.jpg','')] = emb.tolist()[0]

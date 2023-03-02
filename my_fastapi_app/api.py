@@ -102,7 +102,7 @@ async def predict_combined(file: UploadFile = File(...)):
 
     tens_image = ImagePrep(pil_image).img
     img_emb = feature_extr(tens_image)
-    _, I = index.search(img_emb.detach().numpy(), 5)     # actual search
+    _, I = index.search(img_emb.detach().numpy(), 4)     # actual search
     os.remove(file.filename)
 
     key = list(image_embedings.keys())

@@ -1,5 +1,6 @@
 # Facebook Marketplace Recommendation Ranking System
 Overview and examples of functionality
+
 # 1 Data preparation
 
 We have two ".csv" tables and one archive with the graphical data. The text data "Products.csv" contains information about listings on the market grouped by the listing id ("product_id") with their categorisation and description, while the "Images.csv" maps the listing id with image_id stored separately in the archive as ".jpeg".
@@ -11,7 +12,7 @@ Finally, the categories is mapped to the image id from "Images.csv", through the
 
 The graphical data has to be homegeneus to be processed by ML algorithm, therefore initial images has to be checked to be the same "RGB" type and the same size. As we realise that all out figures has different resolution and aspect ratio, we need to fix it by resizing each image to the simular size. The class ImagesHandle is responsible for performing this task.
 
-The initial dataset of 11121 categorised images is split into the training (10k images) and test (1121 images) datasets. We split the training data into the evaluation (30%) and training (70%) parts during model training. Each dataset split was performed randomly, so each category is well represented in test and training data. The prepared images are all homogenous, normalised and set to be a size of 256x256. The data augmentation also used adding random image rotations, and vertical and horizontal splits. 
+The initial dataset of 11121 categorised images is split into the training (10k images) and test (1121 images) datasets. We split the training data into the evaluation (30%) and training (70%) parts during model training. Each dataset split was performed randomly, so each category is well represented in test and training data. The prepared images are all homogenous, normalised and set to be a size of 256x256. The data augmentation also used adding random image rotations, and vertical and horizontal splits.
 
 The final model performance is ___
 
@@ -38,8 +39,12 @@ Finally, comparison of 'cos' vs 'stepper' gives following accuracy on test datas
 * Accuracy of 'cos' = 58%
 * Accuracy of 'stepper' = 56%
 
+To improve the accuracy of our model several procedures can be applied
+
+* Use smaller batch size, this will improve accuracy, but slow down the training proccess
 
 % what can be done to imporove
+
 # 3 Indexing
 After model training is over, the neural network can privide image embeding i.e. progection of the image onto the vector space 13 dimensions (categories). Once model aplied on the arbitrary image it returns an array of 13 float numbers, which indecates which category it is more likely to fit in. In order to optimise such process, one can use FAISSE index, which is optimised to search for closest match over the base of n-dimensonal vectors. Here our base conatains 10k image embedings of training dataset. 
 
