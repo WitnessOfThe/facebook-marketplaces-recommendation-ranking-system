@@ -2,6 +2,7 @@
 import os
 import torch
 import pandas as pd
+import pickle
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torchvision import models
@@ -16,10 +17,9 @@ class CustomImageDataset(torch.utils.data.Dataset):
         self.label_file            = pd.read_csv(name)              
         self.encoder, self.decoder = self.return_encoder_decoder()
         self.img_labels            = self.get_img_labels()
-        self.img_dir               = 'images_fb\\clean_images_256'        
+        self.img_dir               = 'images_fb\\clean_images_224'        
         self.x                     = self.label_file['id_x']
-        self.transform             = transforms.Compose([transforms.Resize(224),
-                                                         transforms.RandomVerticalFlip(),
+        self.transform             = transforms.Compose([transforms.RandomVerticalFlip(),
                                                          transforms.RandomRotation((-180,+180)),
                                                          transforms.RandomHorizontalFlip(),
                                                          transforms.ToTensor(),
@@ -40,13 +40,18 @@ class CustomImageDataset(torch.utils.data.Dataset):
         return self.transform(image), label
 
     def return_encoder_decoder(self):
-        cat0_keys = self.label_file['cat:0'].unique()
-        cat0_encoder = {}
-        cat0_decoder = {}
-        for _ in range(len(cat0_keys)):
-            cat0_encoder[cat0_keys[_]] = _
-            cat0_decoder[_] = cat0_keys[_]
-        return cat0_encoder,cat0_decoder
+        with open(os.path.join('model_final','decoder.pkl'), 'rb') as f:
+            decoder =  pickle.load(f)        
+        with open(os.path.join('model_final','encoder.pkl'), 'rb') as f:
+            encoder =  pickle.load(f)
+        return encoder, decoder
+#        cat0_keys = self.label_file['cat:0'].unique()
+ #       cat0_encoder = {}
+  #      cat0_decoder = {}
+   #     for _ in range(len(cat0_keys)):
+    #        cat0_encoder[cat0_keys[_]] = _
+     #       cat0_decoder[_] = cat0_keys[_]
+ #       return cat0_encoder,cat0_decoder
  
 def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path):
     model.fc = torch.nn.Linear(model.fc.in_features, 13)
@@ -68,9 +73,10 @@ def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path):
     model    = model.to(device)
     # set up optimiser and scheduler with respect to resnet recomentations (can be found in Git)
     # or simply use Adam :)
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.875, weight_decay=3.0517578125e-05)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 7,eta_min= 1E-5)
-    epochs     = 60
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.875, weight_decay=3.0517578125e-05)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+#    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 10,eta_min= 1E-6, last_epoch=-1)
+    epochs     = 7*5
 #    optimizer  = torch.optim.Adam(model.parameters())       
     criterion  = torch.nn.CrossEntropyLoss()    
     best_accur = 0
@@ -141,29 +147,38 @@ def save_model(model,path,name):
     torch.save(model.state_dict(),os.path.join(path,name+'.pt'))
 
 def get_datasets(data_set_path_name,data_test_set_path_name):
-    full_data= CustomImageDataset(data_set_path_name)
+    full_data   = CustomImageDataset(data_set_path_name)
     test_dataset= CustomImageDataset(data_test_set_path_name)
-    size    = len(full_data)
-#    subset_sampler = torch.utils.data.SubsetRandomSampler(torch.randperm(size)[:500]) # Get split into test and training
- #   size =len(subset_sampler)
+
+    size           = len(full_data)
     train_size     = int(0.7*size)
     eval_size      = size -train_size
     train_dataset, val_dataset = torch.utils.data.random_split(full_data, [train_size,eval_size])
 
+#    size           = len(full_data)
+ #   train_size     = int(0.9*size)
+  #  test_size      = size -train_size
+   # train_dataset, val_dataset = torch.utils.data.random_split(full_data, [train_size,eval_size])
+
+#    size           = len(full_data)
+ #   train_size     = int(0.7*size)
+  #  eval_size      = size -train_size
+   # train_dataset, val_dataset = torch.utils.data.random_split(full_data, [train_size,eval_size])
     
 
     datasets    = {'train':train_dataset,
                     'val':val_dataset,
                     'test':test_dataset}
     
-    dataloaders = {x: torch.utils.data.DataLoader(datasets[x], batch_size=30, num_workers=4, shuffle=True)
+    dataloaders = {x: torch.utils.data.DataLoader(datasets[x], batch_size=100, num_workers=1,shuffle=True)
                     for x in ['train', 'val','test']}
                     
     dataset_sizes = {x: len(datasets[x]) for x in ['train', 'val','test']}
     return dataloaders, dataset_sizes
 
 def validate_test(model):
-    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_clean.csv')
+
+    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_rm_dup.csv','training_data_sandbox\\test_data_rm_dup.csv')
 
     device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model    = model.to(device)
@@ -186,9 +201,9 @@ if __name__ == '__main__':
 
     """Validation of the trained Model"""
 
-#    model    = models.resnet50(  weights='IMAGENET1K_V2')#
- #   model.fc = torch.nn.Linear(model.fc.in_features, 13)
-  #  model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh42032023-03-01_20_30_13','epoch_43,Loss_2.5254 Acc_0.5606.pt')))
+  #  model    = models.resnet50(  weights='IMAGENET1K_V2')#
+   # model.fc = torch.nn.Linear(model.fc.in_features, 13)
+#    model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh38492023-03-02_01_31_30','epoch_4,Loss_2.0318 Acc_0.3452.pt')))
    # validate_test(model)
 
     '''Validation of the Resnet'''

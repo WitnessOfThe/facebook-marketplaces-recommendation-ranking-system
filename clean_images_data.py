@@ -59,7 +59,7 @@ class ImagesHandle:
 
 if __name__ == '__main__':
     path_dirty = 'C:/Users/Danila/Documents/GitHub/facebook-marketplaces-recommendation-ranking-system/images_fb/images/'
-    path_clean = 'C:/Users/Danila/Documents/GitHub/facebook-marketplaces-recommendation-ranking-system/images_fb/clean_images_256/'
+    path_clean = 'C:/Users/Danila/Documents/GitHub/facebook-marketplaces-recommendation-ranking-system/images_fb/clean_images_224/'
     ih = ImagesHandle(path_dirty,path_clean)
 #    ih.get_list_of_images_names(path_dirty)
  #   df_size = ih.get_list_of_images_size(path_dirty)
