@@ -25,13 +25,13 @@ The model training require a measure of the model performance, here we use so ca
 
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/lr_curve.PNG)
 
-The correpsonding training loss rates indicates that cosine annealing method is more likely to escape the local minima and has a potential to find higher performing model weights, while the steplike scheduler prone to stuck in the first found minima with low propability of escaping from that
+The correpsonding training loss rates indicates that cosine annealing method is more likely to escape the local minima and has a potential to find higher performing model weights, while the steplike scheduler prone to stuck in the first found minima with lower propability of escaping
 
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/train_loss_vs_epoch.PNG)
 
-The training of the model is initiated by "nn_boot_camp.py" script. Here we initiate two different model retraining procedures that differ in scheduler type
-The functions retrain_resnet_50Cos and 
+The comparison of the model performance on the evaluation data set, also plays in favour of the cosine annealing method as it reach higher level of performance using less of the computation time compare to 'staircase'. 
 
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/eval_vs_epoch.PNG)
 
 # 3 Indexing
 After model training is over, the neural network can privide image embeding i.e. progection of the image onto the vector space 13 dimensions (categories). Once model aplied on the arbitrary image it returns an array of 13 float numbers, which indecates which category it is more likely to fit in. In order to optimise such process, one can use FAISSE index, which is optimised to search for closest match over the base of n-dimensonal vectors. Here our base conatains 10k image embedings of training dataset. 
