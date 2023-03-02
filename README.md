@@ -33,6 +33,13 @@ The comparison of the model performance on the evaluation data set, also plays i
 
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/eval_vs_epoch.PNG)
 
+Finally, comparison of 'cos' vs 'stepper' gives following accuracy on test dataset
+
+* Accuracy of 'cos' = 58%
+* Accuracy of 'stepper' = 56%
+
+
+% what can be done to imporove
 # 3 Indexing
 After model training is over, the neural network can privide image embeding i.e. progection of the image onto the vector space 13 dimensions (categories). Once model aplied on the arbitrary image it returns an array of 13 float numbers, which indecates which category it is more likely to fit in. In order to optimise such process, one can use FAISSE index, which is optimised to search for closest match over the base of n-dimensonal vectors. Here our base conatains 10k image embedings of training dataset. 
 

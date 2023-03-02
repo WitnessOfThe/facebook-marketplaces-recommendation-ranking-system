@@ -265,21 +265,31 @@ if __name__ == '__main__':
 
     """Validation of the trained Model"""
 
-#    model    = models.resnet50(  weights='IMAGENET1K_V2')#
-#    model.fc = torch.nn.Linear(model.fc.in_features, 13)
-#    model.load_state_dict(torch.load(os.path.join('model_eval','flat_steps','batch100','epoch_33,Loss_1.4882 Acc_0.5548.pt')))
-#    validate_test(model)
+    model    = models.resnet50(  weights='IMAGENET1K_V2')#
+    model.fc = torch.nn.Linear(model.fc.in_features, 13)
+    model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh_batch_5038492023-03-02_03_01_15','epoch_69,Loss_2.5770 Acc_0.5694.pt')))
+    validate_test(model)
+
+    model    = models.resnet50(  weights='IMAGENET1K_V2')#
+    model.fc = torch.nn.Linear(model.fc.in_features, 13)
+    model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh_batch_5038492023-03-02_12_00_38','epoch_55,Loss_2.4264 Acc_0.5548.pt')))
+    validate_test(model)
+
+    model    = models.resnet50(  weights='IMAGENET1K_V2')#
+    model.fc = torch.nn.Linear(model.fc.in_features, 13)
+    model.load_state_dict(torch.load(os.path.join('model_eval','StepFullFarsh_batch_5038492023-03-02_06_28_16','epoch_100,Loss_2.6966 Acc_0.5560.pt')))
+    validate_test(model)
 
     '''Validation of the Resnet'''
 #    model    = models.resnet50(weights='IMAGENET1K_V2')
  #   model.fc = torch.nn.Linear(model.fc.in_features, 13)
   #  validate_test(model)
 
-    '''Training of the model'''
-    model    = models.resnet50(  weights='IMAGENET1K_V2')
-    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_rm_dup.csv','training_data_sandbox\\test_data_rm_dup.csv')
-    path   = 'model_eval' 
-    retrain_resnet_50Cos(model,dataloaders,dataset_sizes,'CosFullFarsh_batch_50'+str(dataset_sizes['train']),path)
+#    '''Training of the model'''
+ #   model    = models.resnet50(  weights='IMAGENET1K_V2')
+  #  dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_rm_dup.csv','training_data_sandbox\\test_data_rm_dup.csv')
+   # path   = 'model_eval' 
+    #retrain_resnet_50Cos(model,dataloaders,dataset_sizes,'CosFullFarsh_batch_50'+str(dataset_sizes['train']),path)
 
 #    model    = models.resnet50(  weights='IMAGENET1K_V2')
  #   dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_rm_dup.csv','training_data_sandbox\\test_data_rm_dup.csv')
