@@ -117,7 +117,7 @@ def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path,epochs,sch_name)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = 40, gamma = 0.25)
         model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path)
     elif 'flat' in sch_name:
-        optimizer = torch.optim.SGD(model.parameters(), lr = 0.002, momentum = 0.875, weight_decay = 3.0517578125e-05)
+        optimizer = torch.optim.SGD(model.parameters(), lr = 0.02, momentum = 0.875, weight_decay = 3.0517578125e-05)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = epochs, gamma = 0.1)
         model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path)
     elif 'adam' in sch_name:
@@ -240,10 +240,14 @@ if __name__ == '__main__':
     dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
     path   = os.path.join('model_eval','batch_100_test'+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))) 
     epoch_number = 160
+    retrain_resnet_50(model,dataloaders,dataset_sizes,'Cos',path,epoch_number,'cos')
+    model    = models.resnet50(weights='IMAGENET1K_V2')
+    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
+    path   = os.path.join('model_eval','batch_100_test'+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))) 
+    epoch_number = 160
+    retrain_resnet_50(model,dataloaders,dataset_sizes,'Flat',path,epoch_number,'flat')
 #    retrain_resnet_50(model,dataloaders,dataset_sizes,'Flat',path,epoch_number,'flat')
  #   retrain_resnet_50(model,dataloaders,dataset_sizes,'Adam',path,epoch_number,'adam')
-    retrain_resnet_50(model,dataloaders,dataset_sizes,'Steper',path,epoch_number,'step')
-    retrain_resnet_50(model,dataloaders,dataset_sizes,'Cos',path,epoch_number,'cos')
 
 #    model    = models.resnet50(  weights='IMAGENET1K_V2')
  #   dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_data_rm_dup.csv','training_data_sandbox\\test_data_rm_dup.csv')
