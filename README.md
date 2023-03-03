@@ -6,9 +6,7 @@ API Methods
 
 <details>
     <summary>get API status</summary>
-    '''rb
-    # \requests_templates\api_health_check.py
-    '''        
+    https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/d4a6b261455974b2ef559cc48538ed1ede9a3734/requests_templates/api_health_check.py#L2-L8
 </details>
 <details>
   <summary>post image embeding</summary>
