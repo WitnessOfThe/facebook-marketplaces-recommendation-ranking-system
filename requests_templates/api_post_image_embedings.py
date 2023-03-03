@@ -1,8 +1,9 @@
 # %%
 import os
+import requests
+
 os.chdir("..")
 root_path = os.getcwd()
-import requests
 
 host = 'http://127.0.0.1:8000'   # local instance adress 
 
