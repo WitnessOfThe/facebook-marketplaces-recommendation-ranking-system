@@ -8,10 +8,13 @@ API Methods
   <summary>get API status</summary>
 <details>
   <summary>post image embeding</summary>
+</details>
 <details>
+</details>
   <summary>post image category</summary>
 <details>
   <summary>post image similar images id from base</summary>
+</details>
 
 ## get similar index
 
