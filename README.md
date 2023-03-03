@@ -5,17 +5,17 @@ In this progect we impement fastAPI based API in Docker container deployed in Am
 API Methods
 
 <details>
-    <summary>get API status</summary>
+    <summary>GET API status</summary>
     https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/d4a6b261455974b2ef559cc48538ed1ede9a3734/requests_templates/api_health_check.py#L2-L8
 </details>
 <details>
-  <summary>post image embeding</summary>
+  <summary>POST image embeding</summary>
 </details>
 <details>
-  <summary>post image category</summary>
+  <summary>POST image category</summary>
 </details>
 <details>
-  <summary>post image similar images lavels from base</summary>
+  <summary>POST image similar images lavels from base</summary>
 </details>
 
 ## get similar index
