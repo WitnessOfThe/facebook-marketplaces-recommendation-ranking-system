@@ -2,8 +2,9 @@
 import os
 import requests
 
-os.chdir("..")
-root_path = os.getcwd()
+if 'requests_templates' in os.getcwd():
+    os.chdir("..")
+    root_path = os.getcwd()
 
 host = 'http://127.0.0.1:8000'   # local instance adress 
 
