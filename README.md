@@ -10,7 +10,7 @@ API Methods
 </details>
 <details>
   <summary>POST image embeding</summary>
-</details>
+    https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/10bb0cc5ad131708513ce5e9210538a235262190/requests_templates/api_post_image_embedings.py#L8-L20</details>
 <details>
   <summary>POST image category</summary>
 </details>
