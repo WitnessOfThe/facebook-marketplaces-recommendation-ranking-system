@@ -1,4 +1,7 @@
-# Facebook Marketplace Recommendation Ranking System
+# Facebook Marketplace Image based Recommendation System
+
+In this progect we impement API in Docker container deployed in Amazon Cloud. This API provides methods that allow to categorise images into 13 product categories and search for the similar images through the image database. The categorisation model is based on the [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) neural network
+
 Overview and examples of functionality
 
 # 1 Data preparation
