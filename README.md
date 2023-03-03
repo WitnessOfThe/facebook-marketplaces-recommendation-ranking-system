@@ -5,7 +5,10 @@ In this progect we impement fastAPI based API in Docker container deployed in Am
 API Methods
 
 <details>
-  <summary>get API status</summary>
+    <summary>get API status</summary>
+    '''rb
+    # \requests_templates\api_health_check.py
+    '''        
 </details>
 <details>
   <summary>post image embeding</summary>
@@ -14,7 +17,7 @@ API Methods
   <summary>post image category</summary>
 </details>
 <details>
-  <summary>post image similar images id from base</summary>
+  <summary>post image similar images lavels from base</summary>
 </details>
 
 ## get similar index
