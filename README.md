@@ -17,7 +17,7 @@ $ python API_templates/api_get_health_check.py
    https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/753ef885bbf82c3d4fa354c5fe3a09ea23093dd6/requests_templates/api_post_image_embedings.py#L2-L17
 
 ```  
-python API_templates/api_post_image_embedings.py 
+$python API_templates/api_post_image_embedings.py 
 {'features': [-4.232490062713623, 0.03285627439618111, 1.6369472742080688, 0.8700776100158691, -1.2164239883422852, -8.073017120361328, -1.5977203845977783, -1.7229307889938354, 0.9121789336204529, 11.23184871673584, 1.3296902179718018, -3.1180896759033203, 4.341047286987305]}
 ```
 
@@ -26,7 +26,7 @@ python API_templates/api_post_image_embedings.py
   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/01f1a60fb88dcc5b0336f5c34b95b7a6cab13858/requests_templates/api_post_category.py#L2-L24
 
 ```  
-python API_templates/api_post_category.py 
+$python API_templates/api_post_category.py 
 {'category_index': 9, 'category': 'Phones, Mobile Phones & Telecoms'}
 ```
 
@@ -34,8 +34,8 @@ python API_templates/api_post_category.py
 
   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/df9ef075f3ba804e82c790c629145f0a85165a27/requests_templates/api_post_similar_images.py#L2-L38
 
-```  
-python API_templates/api_post_similar_images.py 
+```
+$python API_templates/api_post_similar_images.py 
 {'similar_index': [6788, 7159, 5983, 2210], 'image_labels': ['c26d58d9-91d9-4112-9c35-b50b1bf67ce4', '00ca700f-1055-43a1-b288-0193c7518347', '3ec76c1f-8dbc-429c-a7c9-85749227a06c', '136ab3a8-d0f1-4d8f-9a2e-c393d2dbb286']}
 ```
 
