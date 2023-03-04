@@ -41,16 +41,17 @@ $python API_templates/api_post_similar_images.py
 
 # Model 
 
-In this project, we use the neural network resnet50, which is available as one of the standard PyTorch models. The resnet50 is a convolutional neural network, which can be utilised for image classification problems. To increase the efficiency of categorization, we use a transfer learning approach, where one can take an initially pre-trained neural network and finetune it for a specific problem. In our case, we load weights of the resnet50 model 'IMAGENET1K_V2', which is trained on the imagenet dataset to perform classification in the 1k different classed. As our have only 13 product categories, we need to change the dimensions of classification layer and retrain model basing on our database. The images for training was provided by the AICore training program and not available for the public. 
+In this project, we use the neural network resnet50, which is available as one of the standard PyTorch models. The resnet50 is a convolutional neural network, which can be utilised for image classification problems. To increase the efficiency of categorization, we use a transfer learning approach, where one can take an initially pre-trained neural network and finetune it for a specific problem. In our case, we load weights of the resnet50 model 'IMAGENET1K_V2', which is trained on the imagenet dataset to perform classification in the 1k different classed. As our have only 13 product categories, we need to change the dimensions of classification layer and retrain model basing on our database. The images for training is provided by the AICore training program and not available for the public. 
 
 ## Data preparation
+The raw data conta two ".csv" tables and one archive with "*.jpg" images. First table "Products.csv" contains information about listings on the market grouped by the listing id ("product_id") with their categorisation and description, While the second table "Images.csv" maps the listing id with image_id corresponding to the label of the image stored in the archive.
 
-We have two ".csv" tables and one archive with the graphical data. The text data "Products.csv" contains information about listings on the market grouped by the listing id ("product_id") with their categorisation and description, while the "Images.csv" maps the listing id with image_id stored separately in the archive as ".jpeg".
+We start with proccessing of the text data. The cleaning starts with the conversion of the "price" column into a proper "float" and removing all raws consisting of missing or NaN data from the table "Products.csv". The field "category" contains the hierarchical structure separated by " / ". For model training we need to extract 
+the root category and assign each unique category an integer number. We create dictionieries "decoder.pkl" and "encoder.pkl" to store maps for direct and reverse tranformations.
 
-The cleaning of the ".csv" data starts with the conversion of the "price" column into a proper "float" and removing all raws consisting of missing or NaN data from the dataset "Products.csv". 
-The field "category" contains the hierarchical structure separated by " / ", we parse it to extract the root category. 
-The root category has to be transformed into the number, so dictionaries "encoder" and "decoder" is implemented.
-Finally, the categories is mapped to the image id from "Images.csv", through the "product_id" forming dataset "training_data.csv".
+The "Image.csv" dataset maps products to the images, where for each product there are two images. These images rerpesent photo of product from the different angle, so they can look very simularly. 
+
+Finally, we join two tables by the key "product_id" forming dataset mapping image label with its category.
 
 The graphical data has to be homegeneus to be processed by ML algorithm, therefore initial images has to be checked to be the same "RGB" type and the same size. As we realise that all out figures has different resolution and aspect ratio, we need to fix it by resizing each image to the simular size. The class ImagesHandle is responsible for performing this task.
 
