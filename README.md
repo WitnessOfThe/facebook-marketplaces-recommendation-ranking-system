@@ -3,21 +3,32 @@
 In this progect we impement fastAPI based API in Docker container deployed in Amazon Cloud. This API provides methods that allow to categorise images into 13 product categories and search for the similar images through the image database. The categorisation model is based on the [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) neural network, while indexing is performed by FAISSE indexing system. 
 
 API Methods
+## GET status
+    https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/d4a6b261455974b2ef559cc48538ed1ede9a3734/requests_templates/api_health_check.py#L2-L8
 
 <details>
-    <summary>GET status</summary>
-    https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/d4a6b261455974b2ef559cc48538ed1ede9a3734/requests_templates/api_health_check.py#L2-L8
+    <summary></summary>
 </details>
+
+## POST image embeding
+   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/753ef885bbf82c3d4fa354c5fe3a09ea23093dd6/requests_templates/api_post_image_embedings.py#L2-L17
+
 <details>
-  <summary>POST image embeding</summary>
-   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/753ef885bbf82c3d4fa354c5fe3a09ea23093dd6/requests_templates/api_post_image_embedings.py#L2-L17</details>
-<details>
-  <summary>POST image category</summary>
+  <summary></summary>
+</details>
+
+## POST image category
   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/01f1a60fb88dcc5b0336f5c34b95b7a6cab13858/requests_templates/api_post_category.py#L2-L24
-</details>
+  
 <details>
-  <summary>POST image similar images lavels from base</summary>
+  <summary></summary>
+</details>
+
+## POST image similar images lavels from base
   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/df9ef075f3ba804e82c790c629145f0a85165a27/requests_templates/api_post_similar_images.py#L2-L38
+  
+<details>
+  <summary></summary>
 </details>
 
 ## get similar index
