@@ -4,7 +4,7 @@ In this progect we impement fastAPI based API in Docker container deployed in Am
 
 API Methods
 ## GET status
-    https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/d4a6b261455974b2ef559cc48538ed1ede9a3734/requests_templates/api_health_check.py#L2-L8
+    https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/b7ff28984c764ad3c263d5ee50c630354abf2c12/requests_templates/api_get_health_check.py#L2-L8
 
 <details>
     <summary></summary>
@@ -26,7 +26,7 @@ API Methods
 
 ## POST image similar images lavels from base
   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/df9ef075f3ba804e82c790c629145f0a85165a27/requests_templates/api_post_similar_images.py#L2-L38
-  
+
 <details>
   <summary></summary>
 </details>
