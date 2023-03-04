@@ -17,6 +17,7 @@ API Methods
 </details>
 <details>
   <summary>POST image similar images lavels from base</summary>
+  https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/df9ef075f3ba804e82c790c629145f0a85165a27/requests_templates/api_post_similar_images.py#L2-L38
 </details>
 
 ## get similar index
