@@ -14,7 +14,7 @@ $ python API_templates/api_get_health_check.py
 ```
 ### POST Image Embeding
 
-https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/8425fc2f54bd0a422b376bb9ad932ede8cde7976/API_templates/api_post_image_embedings.py#L5-L15
+https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/8425fc2f54bd0a422b376bb9ad932ede8cde7976/API_templates/api_post_image_embedings.py#L5-L15  
 
 ```  
 $python API_templates/api_post_image_embedings.py 
@@ -39,7 +39,11 @@ $python API_templates/api_post_similar_images.py
 {'similar_index': [6788, 7159, 5983, 2210], 'image_labels': ['c26d58d9-91d9-4112-9c35-b50b1bf67ce4', '00ca700f-1055-43a1-b288-0193c7518347', '3ec76c1f-8dbc-429c-a7c9-85749227a06c', '136ab3a8-d0f1-4d8f-9a2e-c393d2dbb286']}
 ```
 
-# 1 Data preparation
+# Model 
+
+In this project, we use the neural network resnet50, which is available as one of the standard PyTorch models. The resnet50 is a convolutional neural network, which can be utilised for image classification problems. To increase the efficiency of categorization, we use a transfer learning approach, where one can take an initially pre-trained neural network and finetune it for a specific problem. In our case, we load weights of the resnet50 model 'IMAGENET1K_V2', which is trained on the imagenet dataset to perform classification in the 1k different classed. As our have only 13 product categories, we need to change the dimensions of classification layer and retrain model basing on our database. The images for training was provided by the AICore training program and not available for the public. 
+
+## Data preparation
 
 We have two ".csv" tables and one archive with the graphical data. The text data "Products.csv" contains information about listings on the market grouped by the listing id ("product_id") with their categorisation and description, while the "Images.csv" maps the listing id with image_id stored separately in the archive as ".jpeg".
 
@@ -56,7 +60,6 @@ The final model performance is ___
 
 # 2 Transfer learning for computer vision
 
-In this project, we use the neural network resnet50, which is available as one of the standard PyTorch models. The resnet50 is a convolutional neural network, which is highly efficient for image classification problems. To increase the efficiency of product categorization, we use a transfer learning approach, where one can take an initially pre-trained neural network and finetune it for a specific problem. In our case, we load weights of the resnet50 model, which is trained on the imagenet dataset to categorize images into the 1k different types. As our have only 13 categories, we need to change the dimensions of the last linear layer and one before to finetune the model to our categariation space.
 
 % define epoch
 
