@@ -13,6 +13,7 @@ API Methods
    https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/753ef885bbf82c3d4fa354c5fe3a09ea23093dd6/requests_templates/api_post_image_embedings.py#L2-L17</details>
 <details>
   <summary>POST image category</summary>
+  https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/01f1a60fb88dcc5b0336f5c34b95b7a6cab13858/requests_templates/api_post_category.py#L2-L24
 </details>
 <details>
   <summary>POST image similar images lavels from base</summary>
