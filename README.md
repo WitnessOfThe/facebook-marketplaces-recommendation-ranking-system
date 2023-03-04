@@ -48,20 +48,18 @@ In this project, we use the neural network resnet50, which is available as one o
 The raw data conta two ".csv" tables and one archive with "*.jpg" images. First table "Products.csv" contains information about listings on the market grouped by the listing id ("product_id") with their categorisation and description, While the second table "Images.csv" maps the listing id with image_id corresponding to the label of the image stored in the archive.
 
 We start with proccessing of the text data. The cleaning starts with the conversion of the "price" column into a proper "float" and removing all raws consisting of missing or NaN data from the table "Products.csv". The field "category" contains the hierarchical structure separated by " / ". For model training we need to extract 
-the root category and assign each unique category an integer number. We create dictionieries "decoder.pkl" and "encoder.pkl" to store maps for direct and reverse tranformations.
-
-The "Image.csv" dataset maps products to the images, where for each product there are two images. These images rerpesent photo of product from the different angle, so they can look very simularly. 
-
-Finally, we join two tables by the key "product_id" forming dataset mapping image label with its category. The described transformations can be found in "sandbox.ipynb"
+the root category and assign each unique category an integer number. We create dictionieries "decoder.pkl" and "encoder.pkl" to store maps for direct and reverse tranformations. The "Image.csv" dataset maps products to the images, where for each product there are two images. These images rerpesent photo of product from the different angle, so they can look very simularly. Finally, we join two tables by the key "product_id" forming dataset mapping image label with its category. The described transformations can be found in "sandbox.ipynb"
 
 The resolution used to pretrain resnet50 is 224x224. Therefore we resize our images to be the same size. The processing is performed in the script "clean_images_data.py"
 
+
+## Model Training
+
+### Dataloader
 The initial dataset of 11121 categorised images is split into the training (10k images) and test (1121 images) datasets. We split the training data into the evaluation (30%) and training (70%) parts during model training. Each dataset split was performed randomly, so each category is well represented in test and training data. The prepared images are all homogenous, normalised and set to be a size of 256x256. The data augmentation also used adding random image rotations, and vertical and horizontal splits.
 
+### Training procedure
 The final model performance is ___
-
-# 2 Transfer learning for computer vision
-
 
 % define epoch
 
@@ -88,8 +86,8 @@ To improve the accuracy of our model several procedures can be applied
 
 % what can be done to imporove
 
-# 3 Indexing
+## Indexing
 After model training is over, the neural network can privide image embeding i.e. progection of the image onto the vector space 13 dimensions (categories). Once model aplied on the arbitrary image it returns an array of 13 float numbers, which indecates which category it is more likely to fit in. In order to optimise such process, one can use FAISSE index, which is optimised to search for closest match over the base of n-dimensonal vectors. Here our base conatains 10k image embedings of training dataset. 
 
-# 4 Api and Docker Deploy
+## Api and Docker Deploy
 In order to make indexing avialable for client, we use fastapi instances. We developed two post methods allowing user to obtain image emdedings and list of the closest images in the dataset. The api is deployed in the Docker container at the EC2 server in Amazon Cloud. 
