@@ -1,13 +1,9 @@
-import requests
 from IPython.display import Image as Im
 from PIL import Image
-import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-import numpy as np
 
-
-def plot_image_with_category(file_name,category_str):
+def plot_image_with_category(df,file_path,file_name,category_str):
     fig = plt.figure(figsize=(5., 5.))
     grid = ImageGrid(fig, 111, 
                     nrows_ncols=(1, 1),  # creates 2x2 grid of axes
@@ -18,13 +14,12 @@ def plot_image_with_category(file_name,category_str):
 
     for ax, im in zip(grid, img_arr):
         ax.imshow(im)
-        ax.text(3, 8, 'Predicted cat:'+category_str, style='italic',
+        ax.text(0, 30, 'Predicted cat:'+category_str, style='italic',
             bbox={'facecolor': 'red', 'alpha': 0.75, 'pad': 10})
-        ax.text(3, 40, 'Real cat:'+get_real_category(file_name)[0], style='italic',
+        ax.text(0, 150, 'Real cat:'+get_real_category(df,file_name)[0], style='italic',
             bbox={'facecolor': 'green', 'alpha': 0.75, 'pad': 10})
 
-def get_real_category(file_name):
-    df = pd.read_csv('training_data_sandbox\\training_data.csv')
+def get_real_category(df,file_name):
     return df[df['id_x'] == file_name]['cat:0'].values.tolist()
 
 def plot_images_with_category(resp_dic,cat_list):
@@ -45,18 +40,3 @@ def plot_images_with_category(resp_dic,cat_list):
             bbox={'facecolor': 'green', 'alpha': 0.75, 'pad': 10})
         i +=1
     plt.show()
-    
-#host = 'http://host.docker.internal:8080'
-#host = 'http://127.0.0.1:8080'
-host = 'http://63.33.191.55:8080' # ec2 instance adress
-host = 'http://127.0.0.1:8000'   # local instance adress 
-file_path = 'images_fb\\clean_images_224\\' # the image from test dataset
-
-file_name = 'ebdb09e9-de15-4b63-aff0-bae01c9cd068'
-file_name = 'fef8b3d3-6f53-4f82-8a6e-a4fde2132c7d'
-
-url = host+'/predict/category'
-file = {'file': open(file_path+file_name+'.jpg', 'rb')} # the image embedding
-category_req = requests.post(url=url,files=file)
-plot_image_with_category(file_name,category_req.json()['category'])
-print(category_req.json())

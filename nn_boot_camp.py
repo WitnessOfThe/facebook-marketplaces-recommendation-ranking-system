@@ -246,6 +246,7 @@ if __name__ == '__main__':
     path   = os.path.join('model_eval','batch_100_test'+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))) 
     epoch_number = 160
     retrain_resnet_50(model,dataloaders,dataset_sizes,'Flat',path,epoch_number,'flat')
+    
 #    retrain_resnet_50(model,dataloaders,dataset_sizes,'Flat',path,epoch_number,'flat')
  #   retrain_resnet_50(model,dataloaders,dataset_sizes,'Adam',path,epoch_number,'adam')
 
