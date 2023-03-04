@@ -2,7 +2,7 @@
 import requests
 import pandas as pd
 import os
-from plot_scripts import plot_image_with_category
+from plot_scripts import plot_images_with_category
 
 if 'requests_templates' in os.getcwd():
     os.chdir("..")
@@ -19,10 +19,21 @@ file_name = 'ebdb09e9-de15-4b63-aff0-bae01c9cd068' # example with smartwatch
 #file_name = 'fef8b3d3-6f53-4f82-8a6e-a4fde2132c7d'
 
 # Make a call
-url = host+'/predict/category'
-file = {'file': open(file_path+file_name+'.jpg', 'rb')} 
-category_req = requests.post(url=url,files=file)
+url = host+'/predict/similar_images'
+file = {'file': open(file_path+file_name+'.jpg', 'rb')} # the image embedding
+resp = requests.post(url=url,files=file)
+resp_dic = dict(resp.json())
 
-# Print API return and display image
-print(category_req.json())
-plot_image_with_category(df,file_path,file_name,category_req.json()['category'])
+# get response
+print(resp_dic)
+
+# Agregate to plot
+cat_list = []
+url = host+'/predict/category'
+for im in resp_dic['image_labels']:
+    file = {'file': open(file_path+file_name+'.jpg', 'rb')} # the image embedding
+    category_req = requests.post(url=url,files=file)
+    cat_list.append(category_req.json()['category'])
+
+plot_images_with_category(df,resp_dic,file_path,cat_list)
+# %%
