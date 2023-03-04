@@ -6,7 +6,7 @@ In this progect we impement fastAPI based API in Docker container deployed in Am
 
 ### GET Status
 
-   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/b7ff28984c764ad3c263d5ee50c630354abf2c12/requests_templates/api_get_health_check.py#L2-L8
+https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/8425fc2f54bd0a422b376bb9ad932ede8cde7976/API_templates/api_get_health_check.py#L2-L10
 
 ```  
 $ python API_templates/api_get_health_check.py 
@@ -14,7 +14,7 @@ $ python API_templates/api_get_health_check.py
 ```
 ### POST Image Embeding
 
-   https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/753ef885bbf82c3d4fa354c5fe3a09ea23093dd6/requests_templates/api_post_image_embedings.py#L2-L17
+https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/8425fc2f54bd0a422b376bb9ad932ede8cde7976/API_templates/api_post_image_embedings.py#L5-L15
 
 ```  
 $python API_templates/api_post_image_embedings.py 
@@ -23,7 +23,7 @@ $python API_templates/api_post_image_embedings.py
 
 ### POST Image Category
 
-  https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/01f1a60fb88dcc5b0336f5c34b95b7a6cab13858/requests_templates/api_post_category.py#L2-L24
+https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/8425fc2f54bd0a422b376bb9ad932ede8cde7976/API_templates/api_post_category.py#L10-L20
 
 ```  
 $python API_templates/api_post_category.py 
@@ -32,7 +32,7 @@ $python API_templates/api_post_category.py
 
 ### POST Similar Images From Base
 
-  https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/df9ef075f3ba804e82c790c629145f0a85165a27/requests_templates/api_post_similar_images.py#L2-L38
+https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/8425fc2f54bd0a422b376bb9ad932ede8cde7976/API_templates/api_post_similar_images.py#L10-L21
 
 ```
 $python API_templates/api_post_similar_images.py 
