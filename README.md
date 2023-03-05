@@ -102,8 +102,9 @@ Then passing this image into the index returns 4 images, where one results is th
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_sanity_check.png)
 
 Now, we pass user generated image of computer monitor
-
-https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/userimage_response.png
-
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/photo_2023-03-05_00-38-50.png)
+and get the following response
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/userimage_response.png)
+remarcably, we got three images of a laptop with turned on display
 ## Api and Docker Deploy
 In order to make indexing avialable for client, we use fastapi instances. We developed two post methods allowing user to obtain image emdedings and list of the closest images in the dataset. The api is deployed in the Docker container at the EC2 server in Amazon Cloud. 
