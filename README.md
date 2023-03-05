@@ -73,7 +73,7 @@ The dataloader used in the standard training routine (torch.utils.data.DataLoade
 The model training requires a measure of the model performance, here we use the so-called cross-entropy losses criterion, which is standard for image classification procedures. Then to provide feedback on the model we use the stochastic gradient descent (SGD) method, which returns updated weights to the model more likely to provide convergence to local minima. One of the key parameters of SGD is the learning rate (lr). In the scope of this project, we compared two different schedulers to control the learning rate. First is the constant ('flat') lr=0.015 across the full training procedure. And the second is the cosine annealing scheduler, which is changing lr by following the cosine ('cos') function from lr_max = 0.015 to  lr_max = 1E-6 with a full period of 100 epochs. We simulated 300 epochs with batch size 200. The corresponding learning rate curves are specified below
 
 
-![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/lr_curve.PNG)
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/6353a2f544b069ecc63b1e82bda2c19ee5b22ea2/readme_images/lr_curve.PNG)
 
 The corresponding training loss rates suggest that the cosine annealing method is more likely to escape the local minima and has the potential to find higher-performing model weights, while the constant scheduler is prone to stick in the first-found minima with a lower probability of finding better-performing one.  
 
