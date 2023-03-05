@@ -213,8 +213,8 @@ if __name__ == '__main__':
     model    = models.resnet50(  weights='IMAGENET1K_V2')#
     model.fc = torch.nn.Linear(model.fc.in_features, 13)
 #    model.load_state_dict(torch.load(os.path.join('model_eval','batch_2002023-03-04_02_44_47','Cos','epoch_241,Loss_2.3270 Acc_0.6437.pt')))
-#    model.load_state_dict(torch.load(os.path.join('model_eval','batch_2002023-03-04_02_44_47','Flat','epoch_230,Loss_2.4976 Acc_0.6393.pt')))
-    model.load_state_dict(torch.load(os.path.join('model_eval','batch_100_test2023-03-03_12_22_28','Steper','epoch_130,Loss_2.2322 Acc_0.6473.pt')))
+    model.load_state_dict(torch.load(os.path.join('model_eval','batch_2002023-03-04_02_44_47','Flat','epoch_230,Loss_2.4976 Acc_0.6393.pt')))
+#    model.load_state_dict(torch.load(os.path.join('model_eval','batch_100_test2023-03-03_12_22_28','Steper','epoch_130,Loss_2.2322 Acc_0.6473.pt')))
     validate_test(model)
 
 

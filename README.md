@@ -59,35 +59,37 @@ the root category and give each unique category an integer. We create dictionari
 
 
 ## Model Training
+The initial dataset of 11121 categorised images is split into the 'work' (10k images) and 'test' (1121 images) datasets. We split the 'work' data into the 'evaluation' (30%) and 'training' (70%) parts during model training. Each dataset split is performed randomly, so each category is well represented in 'test' and 'training' data. 
+
+During the training procedure model update weights coefficients based on its performance on the training dataset. Each epoch (the round of iterations across 'training' data) we test model performance on the 'evaluation' dataset. As soon as we proceed through the desired number of epochs we test our model on our 'test' dataset, which is our final performance indicator. 
 
 ### Dataloader
-The initial dataset of 11121 categorised images is split into the training (10k images) and test (1121 images) datasets. We split the training data into the evaluation (30%) and training (70%) parts during model training. Each dataset split is performed randomly, so each category is well represented in test and training data. We use a data augmentation procudure, so each image pasted to training experiences random rotation, and horizontal/vertical flips, these measures generally allow us to prevent overfitting by effectively increasing the database size.  
+The dataloader used in the standard training routine (torch.utils.data.DataLoader) is the wrapper around torch.utils.data.Dataset object. Therefore we create a class inheriting torch.utils.data.Dataset, where we implement datahandling with respect to the dataloader spec. We use a data augmentation procedure to increase model resistance to overfitting, so each time image passed to training it experiences random rotation and horizontal/vertical flips. Such transformations applied to the 'training' dataset effectively increase its size, but during 'test' and 'evaluation' procedures it provides extra noise making it hard to analyse results.
 
 ### Training procedure
-The final model performance is ___
 
-% define epoch
+The model training requires a measure of the model performance, here we use the so-called cross-entropy losses criterion, which is standard for image classification procedures. Then to provide feedback on the model we use the stochastic gradient descent (SGD) method, which returns updated weights to the model more likely to provide convergence to local minima. One of the key parameters of SGD is the learning rate (lr). In the scope of this project, we compared two different schedulers to control the learning rate. First is the constant ('flat') lr=0.015 across the full training procedure. And the second is the cosine annealing scheduler, which is changing lr by following the cosine ('cos') function from lr_max = 0.015 to  lr_max = 1E-6 with a full period of 100 epochs. We simulated 300 epochs with batch size 200. The corresponding learning rate curves are specified below
 
-The model training require a measure of the model performance, here we use so called cross entropy losses criterion, which is standart for image classification procedures. Then to provide feedback into the model we use the stochastic gradient descent (SGD) method, which returns updated weights to the model more likely to provide convergence to local minima. One of the key parameters of SGD is the learning rate (lr). In the scope of this progect, we compared two different schedulers to control learning rate. First is the step like changing of the learning rate. We start from the lr = 0.01 and decrease it in 10 times every 40 epochs down to lr = 1E-6 . While the second is the cosine annealing method, which is changing the lr following cosine function from lr_max = 0.01 to  lr_max = 1E-6 with full period of 40 epochs. The corresponding learning rate curves are specified below in the log scale
 
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/lr_curve.PNG)
 
-The correpsonding training loss rates indicates that cosine annealing method is more likely to escape the local minima and has a potential to find higher performing model weights, while the steplike scheduler prone to stuck in the first found minima with lower propability of escaping
+The corresponding training loss rates suggest that the cosine annealing method is more likely to escape the local minima and has the potential to find higher-performing model weights, while the constant scheduler is prone to stick in the first-found minima with a lower probability of finding better-performing one.  
 
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/train_loss_vs_epoch.PNG)
 
-The comparison of the model performance on the evaluation data set, also plays in favour of the cosine annealing method as it reach higher level of performance using less of the computation time compare to 'staircase'. 
+The comparison of the model performance on the evaluation data set also shows the potential of the cosine annealing method as it reaches a higher level of performance using less computation time compare to a 'flat' scheduler. 
 
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/eval_vs_epoch.PNG)
 
-Finally, comparison of 'cos' vs 'stepper' gives following accuracy on test dataset
+Finally, comparison of performance of 'cos' vs 'flat' on the test dataset gives
 
-* Accuracy of 'cos' = 58%
-* Accuracy of 'stepper' = 56%
+* Accuracy of 'cos' = 66.28%
+* Accuracy of 'flat' = 66.46%
 
-To improve the accuracy of our model several procedures can be applied
-
-* Use smaller batch size, this will improve accuracy, but slow down the training proccess
+The tiny marginal difference can indicate that the parameters of the cosine annealing method were far from optimal and further work can be done to improve model performance. Such as
+* Use a smaller batch size
+* Increase the number of epochs
+* find the optimal period and amplitude for the cosine annealing method
 
 % what can be done to imporove
 
