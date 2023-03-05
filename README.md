@@ -88,10 +88,8 @@ Finally, comparison of performance of 'cos' vs 'flat' on the test dataset gives
 
 The tiny marginal difference can indicate that the parameters of the cosine annealing method were far from optimal and further work can be done to improve model performance. Such as
 * Use a smaller batch size
-* Increase the number of epochs
+* Increase the number of epochs (current simulation time performed at GeForce 1050 TI takes around 9.3 hours)
 * find the optimal period and amplitude for the cosine annealing method
-
-% what can be done to imporove
 
 ## Indexing
 After model training is over, the neural network can provide image embedding i.e. projection of the image onto the vector space 13 dimensions (categories). Once applied to the arbitrary image it returns an array of 13 float numbers, which indicates which category it is more likely to fit in. In order to optimise such a process, one can use the FAISSE index, which is the tool used to search for the closest match over the base of n-dimensional vectors. Here, we create a database containing 10k image embeddings of of the training dataset.
