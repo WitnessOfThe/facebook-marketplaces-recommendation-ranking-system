@@ -31,6 +31,7 @@ https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-sys
 $python API_templates/api_post_category.py 
 {'category_index': 9, 'category': 'Phones, Mobile Phones & Telecoms'}
 ```
+After proccessing:
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/query_to_index.png)
 
 ### POST Similar Images From Base
@@ -41,6 +42,7 @@ https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-sys
 $python API_templates/api_post_similar_images.py 
 {'similar_index': [6788, 7159, 5983, 2210], 'image_labels': ['c26d58d9-91d9-4112-9c35-b50b1bf67ce4', '00ca700f-1055-43a1-b288-0193c7518347', '3ec76c1f-8dbc-429c-a7c9-85749227a06c', '136ab3a8-d0f1-4d8f-9a2e-c393d2dbb286']}
 ```
+After proccessing:
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_test_query.png)
 
 # Model 
@@ -99,7 +101,9 @@ Let us check the index performance using API calls. First we perform sanity chec
 Then passing this image into the index returns 4 images, where one results is the original one
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_sanity_check.png)
 
-Now, we pass 
+Now, we pass user generated image of computer monitor
+
+https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/userimage_response.png
 
 ## Api and Docker Deploy
 In order to make indexing avialable for client, we use fastapi instances. We developed two post methods allowing user to obtain image emdedings and list of the closest images in the dataset. The api is deployed in the Docker container at the EC2 server in Amazon Cloud. 
