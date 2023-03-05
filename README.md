@@ -1,6 +1,7 @@
-# Facebook Marketplace Image based Recommendation System
+# Image based Recommendation System
+## Facebook Marketplace 
 
-In this progect we impement fastAPI based API in Docker container deployed in Amazon Cloud. This API provides methods that allow to categorise images into 13 product categories and search for the similar images through the image database. The categorisation model is based on the [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) neural network, while indexing is performed by FAISSE indexing system. 
+In this project, we implement fastAPI-based API in a Docker container deployed in Amazon Cloud. This API provides methods that allow categorising images into 13 product categories and searching for similar images through the image database. The categorisation model is based on the [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) neural network, while indexing is performed by the FAISSE indexing system. 
 
 Key technologies used: Resnet50 neural network (Pytorch implementation), FAISS indexing, FastAPI, Docker 
 
@@ -47,22 +48,20 @@ After proccessing:
 
 # Model 
 
-In this project, we use the neural network resnet50, which is available as one of the standard PyTorch models. The resnet50 is a convolutional neural network, which can be utilised for image classification problems. To increase the efficiency of categorization, we use a transfer learning approach, where one can take an initially pre-trained neural network and finetune it for a specific problem. In our case, we load weights of the resnet50 model 'IMAGENET1K_V2', which is trained on the imagenet dataset to perform classification in the 1k different classed. As our have only 13 product categories, we need to change the dimensions of classification layer and retrain model basing on our database. The images for training is provided by the AICore training program and not available for the public. 
+In this project, we use the resnet50 neural network, which is a convolutional neural network and can be used for image classification tasks. To improve the efficiency of categorization, we use the transfer learning approach, which is to take a pre-trained neural network and tunes it for a specific task. In our case, we load the weights of the resnet50 model "IMAGENET1K_V2" which is trained on the imagenet dataset to perform a classification into 1k different classes. Since we have 13 product categories in total, we need to resize the classification layer and retrain the model based on our database. The training images are provided by the AICore training program.
 
 ## Data preparation
 
-The raw data conta two ".csv" tables and one archive with "*.jpg" images. First table "Products.csv" contains information about listings on the market grouped by the listing id ("product_id") with their categorisation and description, While the second table "Images.csv" maps the listing id with image_id corresponding to the label of the image stored in the archive.
+The raw data contains two ".csv" tables and one "*.jpg" image archive. The first table "Products.csv" lists the market products grouped by listing ID ("product_id") with their classification and description, and the second table "Images.csv" maps the listing ID to the image_id corresponding to the label of the saved image.
 
-We start with proccessing of the text data. The cleaning starts with the conversion of the "price" column into a proper "float" and removing all raws consisting of missing or NaN data from the table "Products.csv". The field "category" contains the hierarchical structure separated by " / ". For model training we need to extract 
-the root category and assign each unique category an integer number. We create dictionieries "decoder.pkl" and "encoder.pkl" to store maps for direct and reverse tranformations. The "Image.csv" dataset maps products to the images, where for each product there are two images. These images rerpesent photo of product from the different angle, so they can look very simularly. Finally, we join two tables by the key "product_id" forming dataset mapping image label with its category. The described transformations can be found in "sandbox.ipynb"
-
-The resolution used to pretrain resnet50 is 224x224. Therefore we resize our images to be the same size. The processing is performed in the script "clean_images_data.py"
+Let's start with processing text data. The cleanup starts by converting the "price" column to the correct "float" and removing all raw data, consisting of missing data or NaN data, from the "Products.csv" table. The "category" field contains a hierarchical structure separated by " / ". To train the model, we need to extract
+the root category and give each unique category an integer. We create dictionaries "decoder.pkl" and "encoder.pkl" to store maps for forward and reverse conversion. The "Image.csv" dataset maps products to images, where there are two images for each product. These images are photographs of products from different angles, so they may look very similar. Finally, we join the two tables on the "product_id" key, forming a dataset that displays the image tag with its category. The transformations described can be found in "sandbox.ipynb". Our images dataset contains "*.jpg" files of different resolution and aspect ratios. As the resnet50 is trained by the images of size 224x224, we need to transform it into the right resolution. The processing is performed in the script "clean_images_data.py"
 
 
 ## Model Training
 
 ### Dataloader
-The initial dataset of 11121 categorised images is split into the training (10k images) and test (1121 images) datasets. We split the training data into the evaluation (30%) and training (70%) parts during model training. Each dataset split is performed randomly, so each category is well represented in test and training data. We use data augumation procudure, so each image pasted to training experience random rotation, horizontal and vertical flip, these measures generally allow to prevent overfitting by effectively increasing the database size.  
+The initial dataset of 11121 categorised images is split into the training (10k images) and test (1121 images) datasets. We split the training data into the evaluation (30%) and training (70%) parts during model training. Each dataset split is performed randomly, so each category is well represented in test and training data. We use a data augmentation procudure, so each image pasted to training experiences random rotation, and horizontal/vertical flips, these measures generally allow us to prevent overfitting by effectively increasing the database size.  
 
 ### Training procedure
 The final model performance is ___
@@ -93,18 +92,17 @@ To improve the accuracy of our model several procedures can be applied
 % what can be done to imporove
 
 ## Indexing
-After model training is over, the neural network can privide image embeding i.e. progection of the image onto the vector space 13 dimensions (categories). Once model aplied on the arbitrary image it returns an array of 13 float numbers, which indecates which category it is more likely to fit in. In order to optimise such process, one can use FAISSE index, which is optimised to search for closest match over the base of n-dimensonal vectors. Here, we create database conataining 10k image embedings of training dataset.
+After model training is over, the neural network can provide image embedding i.e. projection of the image onto the vector space 13 dimensions (categories). Once applied to the arbitrary image it returns an array of 13 float numbers, which indicates which category it is more likely to fit in. In order to optimise such a process, one can use the FAISSE index, which is the tool used to search for the closest match over the base of n-dimensional vectors. Here, we create a database containing 10k image embeddings of of the training dataset.
 
-Let us check the index performance using API calls. First we perform sanity check by passing training dataset image into the index.
+Let us check the index performance using API calls. First, we perform a sanity check by passing the training dataset image into the index.
+
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_sanity_check_original_image.png)
 
-Then passing this image into the index returns 4 images, where one results is the original one
+Then passing that image to the index returns 4 images, one of which is the original
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_sanity_check.png)
 
 Now, we pass user generated image of computer monitor
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/photo_2023-03-05_00-38-50.png)
 and get the following response
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/userimage_response.png)
-remarcably, we got three images of a laptop with turned on display
-## Api and Docker Deploy
-In order to make indexing avialable for client, we use fastapi instances. We developed two post methods allowing user to obtain image emdedings and list of the closest images in the dataset. The api is deployed in the Docker container at the EC2 server in Amazon Cloud. 
+A noticeable feature, that we got three images of a laptop with turned on display
