@@ -1,5 +1,5 @@
-# Image based Recommendation System
-### Inspired By Facebook Marketplace 
+# Image-based Recommendation System
+### Based on Facebook Marketplace 
 
 In this project, we implement fastAPI-based API in a Docker container deployed in Amazon Cloud. This API provides methods that allow categorising images into 13 product categories and searching for similar images through the image database. The categorisation model is based on the [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) neural network, while indexing is performed by the FAISSE indexing system. 
 
