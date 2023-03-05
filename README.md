@@ -101,10 +101,15 @@ Let us check the index performance using API calls. First, we perform a sanity c
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_sanity_check_original_image.png)
 
 Then passing that image to the index returns 4 images, one of which is the original
+
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_sanity_check.png)
 
 Now, we pass user generated image of computer monitor
+
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/photo_2023-03-05_00-38-50.png)
+
 and get the following response
+
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/userimage_response.png)
+
 A noticeable feature, that we got three images of a laptop with turned on display
