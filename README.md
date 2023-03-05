@@ -1,5 +1,5 @@
 # Image based Recommendation System
-## Facebook Marketplace 
+### Inspired By Facebook Marketplace 
 
 In this project, we implement fastAPI-based API in a Docker container deployed in Amazon Cloud. This API provides methods that allow categorising images into 13 product categories and searching for similar images through the image database. The categorisation model is based on the [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) neural network, while indexing is performed by the FAISSE indexing system. 
 
@@ -112,4 +112,4 @@ and get the following response
 
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/userimage_response.png)
 
-A noticeable feature, that we got three images of a laptop with turned on display
+A noticeable feature, that we got three images of a laptop with turned on display.
