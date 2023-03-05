@@ -2,6 +2,8 @@
 
 In this progect we impement fastAPI based API in Docker container deployed in Amazon Cloud. This API provides methods that allow to categorise images into 13 product categories and search for the similar images through the image database. The categorisation model is based on the [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) neural network, while indexing is performed by FAISSE indexing system. 
 
+Key technologies used: Resnet50 neural network (Pytorch implementation), FAISS indexing, FastAPI, Docker 
+
 ## API Methods
 
 ### GET Status
@@ -56,7 +58,7 @@ The resolution used to pretrain resnet50 is 224x224. Therefore we resize our ima
 ## Model Training
 
 ### Dataloader
-The initial dataset of 11121 categorised images is split into the training (10k images) and test (1121 images) datasets. We split the training data into the evaluation (30%) and training (70%) parts during model training. Each dataset split was performed randomly, so each category is well represented in test and training data. The prepared images are all homogenous, normalised and set to be a size of 256x256. The data augmentation also used adding random image rotations, and vertical and horizontal splits.
+The initial dataset of 11121 categorised images is split into the training (10k images) and test (1121 images) datasets. We split the training data into the evaluation (30%) and training (70%) parts during model training. Each dataset split is performed randomly, so each category is well represented in test and training data. We use data augumation procudure, so each image pasted to training experience random rotation, horizontal and vertical flip, these measures generally allow to prevent overfitting by effectively increasing the database size.  
 
 ### Training procedure
 The final model performance is ___
@@ -87,7 +89,9 @@ To improve the accuracy of our model several procedures can be applied
 % what can be done to imporove
 
 ## Indexing
-After model training is over, the neural network can privide image embeding i.e. progection of the image onto the vector space 13 dimensions (categories). Once model aplied on the arbitrary image it returns an array of 13 float numbers, which indecates which category it is more likely to fit in. In order to optimise such process, one can use FAISSE index, which is optimised to search for closest match over the base of n-dimensonal vectors. Here our base conatains 10k image embedings of training dataset. 
+After model training is over, the neural network can privide image embeding i.e. progection of the image onto the vector space 13 dimensions (categories). Once model aplied on the arbitrary image it returns an array of 13 float numbers, which indecates which category it is more likely to fit in. In order to optimise such process, one can use FAISSE index, which is optimised to search for closest match over the base of n-dimensonal vectors. Here, we create database conataining 10k image embedings of training dataset.
+
+
 
 ## Api and Docker Deploy
 In order to make indexing avialable for client, we use fastapi instances. We developed two post methods allowing user to obtain image emdedings and list of the closest images in the dataset. The api is deployed in the Docker container at the EC2 server in Amazon Cloud. 

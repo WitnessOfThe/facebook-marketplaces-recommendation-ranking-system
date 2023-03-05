@@ -55,7 +55,7 @@ class CustomImageDataset(torch.utils.data.Dataset):
 def get_lr(optimizer):
     for p in optimizer.param_groups:
         return p["lr"]
-def epoch_loop(model,optimizer,device,writer,epochs,scheduler,path):
+def epoch_loop(model,optimizer,device,writer,epochs,scheduler,path,dataloaders,dataset_sizes):
 
     criterion  = torch.nn.CrossEntropyLoss()    
     best_accur = 0
@@ -111,19 +111,15 @@ def retrain_resnet_50(model,dataloaders,dataset_sizes,name,path,epochs,sch_name)
     if 'cos' in sch_name:
         optimizer = torch.optim.SGD(model.parameters(), lr = 0.015, momentum = 0.875, weight_decay = 3.0517578125e-05)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 50, eta_min = 1E-6, last_epoch = -1)  
-        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path)
+        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path,dataloaders,dataset_sizes)
     elif 'step' in sch_name:
         optimizer = torch.optim.SGD(model.parameters(), lr = 0.015, momentum = 0.875, weight_decay = 3.0517578125e-05)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = 100, gamma = 0.1)
-        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path)
+        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path,dataloaders,dataset_sizes)
     elif 'flat' in sch_name:
         optimizer = torch.optim.SGD(model.parameters(), lr = 0.015, momentum = 0.875, weight_decay = 3.0517578125e-05)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = epochs, gamma = 0.1)
-        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path)
-    elif 'adam' in sch_name:
-        optimizer = torch.optim.Adam(model.parameters())
-        scheduler = []
-        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path)
+        model,optimizer,device,criterion = epoch_loop(model,optimizer,device,writer,epochs,scheduler,path,dataloaders,dataset_sizes)
 
     phase = 'test'
     model,running_loss,running_corrects = train_eval_loop(model,phase,dataloaders,device,criterion,optimizer)
@@ -214,20 +210,13 @@ if __name__ == '__main__':
 
     """Validation of the trained Model"""
 
-#    model    = models.resnet50(  weights='IMAGENET1K_V2')#
- #   model.fc = torch.nn.Linear(model.fc.in_features, 13)
-  #  model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh_batch_5038492023-03-02_03_01_15','epoch_69,Loss_2.5770 Acc_0.5694.pt')))
-   # validate_test(model)
+    model    = models.resnet50(  weights='IMAGENET1K_V2')#
+    model.fc = torch.nn.Linear(model.fc.in_features, 13)
+#    model.load_state_dict(torch.load(os.path.join('model_eval','batch_2002023-03-04_02_44_47','Cos','epoch_241,Loss_2.3270 Acc_0.6437.pt')))
+#    model.load_state_dict(torch.load(os.path.join('model_eval','batch_2002023-03-04_02_44_47','Flat','epoch_230,Loss_2.4976 Acc_0.6393.pt')))
+    model.load_state_dict(torch.load(os.path.join('model_eval','batch_100_test2023-03-03_12_22_28','Steper','epoch_130,Loss_2.2322 Acc_0.6473.pt')))
+    validate_test(model)
 
-#    model    = models.resnet50(  weights='IMAGENET1K_V2')#
- #   model.fc = torch.nn.Linear(model.fc.in_features, 13)
-  #  model.load_state_dict(torch.load(os.path.join('model_eval','CosFullFarsh_batch_5038492023-03-02_12_00_38','epoch_55,Loss_2.4264 Acc_0.5548.pt')))
-   # validate_test(model)
-
-#   model    = models.resnet50(weights='IMAGENET1K_V2')#
-  #  model.fc = torch.nn.Linear(model.fc.in_features, 13)
-   # model.load_state_dict(torch.load(os.path.join('model_eval','epoch_47,Loss_1.6223 Acc_0.5887.pt')))
-    #validate_test(model)
 
     '''Validation of the Resnet'''
 #    model    = models.resnet50(weights='IMAGENET1K_V2')
@@ -236,19 +225,19 @@ if __name__ == '__main__':
 
     '''Training of the model'''
 
-    epoch_number = 300
-    model    = models.resnet50(weights='IMAGENET1K_V2')
-    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
-    path   = os.path.join('model_eval','batch_200'+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))) 
-    retrain_resnet_50(model,dataloaders,dataset_sizes,'Flat',path,epoch_number,'flat')
+#    epoch_number = 300
+ #   model    = models.resnet50(weights='IMAGENET1K_V2')
+  #  dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
+   # path   = os.path.join('model_eval','batch_200'+str(datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))) 
+    #retrain_resnet_50(model,dataloaders,dataset_sizes,'Flat',path,epoch_number,'flat')
 
-    model    = models.resnet50(weights='IMAGENET1K_V2')
-    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
-    retrain_resnet_50(model,dataloaders,dataset_sizes,'Cos',path,epoch_number,'cos')
+#    model    = models.resnet50(weights='IMAGENET1K_V2')
+  #  dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
+ #   retrain_resnet_50(model,dataloaders,dataset_sizes,'Cos',path,epoch_number,'cos')
 
-    model    = models.resnet50(weights='IMAGENET1K_V2')
-    dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
-    retrain_resnet_50(model,dataloaders,dataset_sizes,'Step',path,epoch_number,'step')
+   # model    = models.resnet50(weights='IMAGENET1K_V2')
+   # dataloaders,dataset_sizes = get_datasets('training_data_sandbox\\training_with_reserved_test.csv','training_data_sandbox\\test.csv')
+  #  retrain_resnet_50(model,dataloaders,dataset_sizes,'Step',path,epoch_number,'step')
 
 #    retrain_resnet_50(model,dataloaders,dataset_sizes,'Flat',path,epoch_number,'flat')
  #   retrain_resnet_50(model,dataloaders,dataset_sizes,'Adam',path,epoch_number,'adam')
