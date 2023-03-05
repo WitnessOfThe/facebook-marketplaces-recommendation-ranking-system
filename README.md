@@ -31,6 +31,7 @@ https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-sys
 $python API_templates/api_post_category.py 
 {'category_index': 9, 'category': 'Phones, Mobile Phones & Telecoms'}
 ```
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/query_to_index.png)
 
 ### POST Similar Images From Base
 
@@ -40,6 +41,7 @@ https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-sys
 $python API_templates/api_post_similar_images.py 
 {'similar_index': [6788, 7159, 5983, 2210], 'image_labels': ['c26d58d9-91d9-4112-9c35-b50b1bf67ce4', '00ca700f-1055-43a1-b288-0193c7518347', '3ec76c1f-8dbc-429c-a7c9-85749227a06c', '136ab3a8-d0f1-4d8f-9a2e-c393d2dbb286']}
 ```
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_test_query.png)
 
 # Model 
 
@@ -91,7 +93,13 @@ To improve the accuracy of our model several procedures can be applied
 ## Indexing
 After model training is over, the neural network can privide image embeding i.e. progection of the image onto the vector space 13 dimensions (categories). Once model aplied on the arbitrary image it returns an array of 13 float numbers, which indecates which category it is more likely to fit in. In order to optimise such process, one can use FAISSE index, which is optimised to search for closest match over the base of n-dimensonal vectors. Here, we create database conataining 10k image embedings of training dataset.
 
+Let us check the index performance using API calls. First we perform sanity check by passing training dataset image into the index.
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_sanity_check_original_image.png)
 
+Then passing this image into the index returns 4 images, where one results is the original one
+![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_sanity_check.png)
+
+Now, we pass 
 
 ## Api and Docker Deploy
 In order to make indexing avialable for client, we use fastapi instances. We developed two post methods allowing user to obtain image emdedings and list of the closest images in the dataset. The api is deployed in the Docker container at the EC2 server in Amazon Cloud. 
