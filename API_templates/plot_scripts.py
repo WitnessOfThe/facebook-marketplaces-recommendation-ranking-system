@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
 def plot_image_with_category(df,file_path,file_name,category_str):
-    fig = plt.figure(figsize=(5., 5.))
+    fig = plt.figure(figsize=(5., 5.), dpi=80)
     grid = ImageGrid(fig, 111, 
                     nrows_ncols=(1, 1),  # creates 2x2 grid of axes
                     axes_pad=0.1,  # pad between axes
@@ -24,7 +24,7 @@ def get_real_category(df,file_name):
     return df[df['id_x'] == file_name]['cat:0'].values.tolist()
 
 def plot_images_with_category(df,resp_dic,file_path,cat_list):
-    fig = plt.figure(figsize=(10., 10.))
+    fig = plt.figure(figsize=(10., 10.), dpi=80)
     grid = ImageGrid(fig, 111, 
                     nrows_ncols=(2, 2),  # creates 2x2 grid of axes
                     axes_pad=0.1,  # pad between axes
