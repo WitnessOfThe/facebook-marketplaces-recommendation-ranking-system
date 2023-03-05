@@ -33,6 +33,7 @@ $python API_templates/api_post_category.py
 {'category_index': 9, 'category': 'Phones, Mobile Phones & Telecoms'}
 ```
 After proccessing:
+
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/query_to_index.png)
 
 ### POST Similar Images From Base
@@ -44,6 +45,7 @@ $python API_templates/api_post_similar_images.py
 {'similar_index': [6788, 7159, 5983, 2210], 'image_labels': ['c26d58d9-91d9-4112-9c35-b50b1bf67ce4', '00ca700f-1055-43a1-b288-0193c7518347', '3ec76c1f-8dbc-429c-a7c9-85749227a06c', '136ab3a8-d0f1-4d8f-9a2e-c393d2dbb286']}
 ```
 After proccessing:
+
 ![plot](https://github.com/WitnessOfThe/facebook-marketplaces-recommendation-ranking-system/blob/main/readme_images/index_test_query.png)
 
 # Model 
