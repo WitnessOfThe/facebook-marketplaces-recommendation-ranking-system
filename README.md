@@ -3,7 +3,7 @@
 
 In this project, we implement fastAPI-based API in a Docker container deployed in Amazon Cloud. This API provides methods that allow categorising images into 13 product categories and searching for similar images through the image database. The categorisation model is based on the [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) neural network, while indexing is performed by the FAISSE indexing system. 
 
-Key technologies used: Resnet50 neural network (Pytorch implementation), FAISS indexing, FastAPI, Docker 
+Key technologies used: Resnet50 neural network (Pytorch), FAISS indexing, FastAPI, Docker 
 
 ## API Methods
 
